@@ -14,8 +14,8 @@ import {
 // Menu items.
 const items = [
   {
-    title: "Clients",
-    url: "/dashboard/clients",
+    title: "Home",
+    url: "#",
     icon: Home,
   },
   {
@@ -42,12 +42,10 @@ const items = [
 
 export function AppSidebar() {
   return (
-    <Sidebar className="bg-white border-none">
+    <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            Application
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (

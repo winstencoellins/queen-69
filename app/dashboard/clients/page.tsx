@@ -4,14 +4,16 @@ import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button, Paginatio
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 import add from "@/public/svgs/add.svg"
 import search from "@/public/svgs/search.svg"
 
 import { Key } from "@react-types/shared";
+import clsx from "clsx";
 
 export default function Client() {
-    const [message, setMessage] = useState<string>('Status telah berhasil diganti menjadi Aktif')
+    const [message, setMessage] = useState<string>('')
     const [isVisible, setIsVisible] = useState<boolean>(false);
 
     const onChangeDropwdown = async (key: Key): Promise<void> => {
@@ -19,6 +21,7 @@ export default function Client() {
 
         try {
             // Logic implementation for fetching filtered data
+            setMessage(`Filter status '${status}' telah berhasil diaplikasikan`)
         } catch (error) {
             console.log(error)
         } finally {
@@ -60,7 +63,7 @@ export default function Client() {
                         startContent={
                             <Image src={search} alt='icon' width={20} height={20} className="mr-2" />
                         }
-                        placeholder="Search client name..."
+                        placeholder="Masukkan nama klien..."
                         type='text'
                         className="w-1/4 bg-slate-100 rounded-lg"
                     />
@@ -73,6 +76,7 @@ export default function Client() {
                         <tr className="text-left">
                             <th className="pb-5">No</th>
                             <th className="pb-5">Nama Klien</th>
+                            <th className="pb-5">Kota</th>
                             <th className="pb-5">Alamat</th>
                             <th className="pb-5">Status</th>
                             <th className="pb-5">Aksi</th>
@@ -81,86 +85,29 @@ export default function Client() {
                     <tbody>
                         <tr>
                             <td className="py-5">1</td>
-                            <td className="w-[30%]">
+                            <td className="w-[25%]">
                                 <p>
                                     Winsten Coellins <br />
                                     <span className="text-xs">+62 8116359119</span>
                                 </p>
                             </td>
-                            <td className="w-[35%]">Jln K L Yos Sudarso No. 153 AB</td>
-                            <td>Aktif</td>
-                            <td>BUTTON</td>
-                        </tr>
-                        <tr>
-                            <td className="py-5">1</td>
-                            <td className="w-[30%]">
-                                <p>
-                                    Winsten Coellins <br />
-                                    <span className="text-xs">+62 8116359119</span>
-                                </p>
-                            </td>
-                            <td className="w-[35%]">Jln K L Yos Sudarso No. 153 AB</td>
-                            <td>Aktif</td>
-                            <td>BUTTON</td>
-                        </tr>
-                        <tr>
-                            <td className="py-5">1</td>
-                            <td className="w-[30%]">
-                                <p>
-                                    Winsten Coellins <br />
-                                    <span className="text-xs">+62 8116359119</span>
-                                </p>
-                            </td>
-                            <td className="w-[35%]">Jln K L Yos Sudarso No. 153 AB</td>
-                            <td>Aktif</td>
-                            <td>BUTTON</td>
-                        </tr>
-                        <tr>
-                            <td className="py-5">1</td>
-                            <td className="w-[30%]">
-                                <p>
-                                    Winsten Coellins <br />
-                                    <span className="text-xs">+62 8116359119</span>
-                                </p>
-                            </td>
-                            <td className="w-[35%]">Jln K L Yos Sudarso No. 153 AB</td>
-                            <td>Aktif</td>
-                            <td>BUTTON</td>
-                        </tr>
-                        <tr>
-                            <td className="py-5">1</td>
-                            <td className="w-[30%]">
-                                <p>
-                                    Winsten Coellins <br />
-                                    <span className="text-xs">+62 8116359119</span>
-                                </p>
-                            </td>
-                            <td className="w-[35%]">Jln K L Yos Sudarso No. 153 AB</td>
-                            <td>Aktif</td>
-                            <td>BUTTON</td>
-                        </tr>
-                        <tr>
-                            <td className="py-5">1</td>
-                            <td className="w-[30%]">
-                                <p>
-                                    Winsten Coellins <br />
-                                    <span className="text-xs">+62 8116359119</span>
-                                </p>
-                            </td>
-                            <td className="w-[35%]">Jln K L Yos Sudarso No. 153 AB</td>
-                            <td>Aktif</td>
-                            <td>BUTTON</td>
+                            <td className="w-[15%]">Medan</td>
+                            <td className="w-[25%]">Jln K L Yos Sudarso No. 153 AB</td>
+                            <td><span className={clsx("px-4 py-2 rounded-full text-white", true ? "bg-green-500" : "bg-red-500")}>Aktif</span></td>
+                            <td><Link href="">Lihat Detail</Link></td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center mt-5">
+                <p className="text-sm">Showing 0 to 1 from 1 results</p>
+
                 <Pagination total={10} classNames={{
                     item: "bg-green-200 rounded-lg px-3",
                     cursor: "px-3 bg-green-500 rounded-lg"
-                }} className="mt-5"/>
+                }} />
             </div>
 
             {/* Toast */}

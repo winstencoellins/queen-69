@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Mulish } from "next/font/google";
 import "./globals.css";
+import { Providers } from "./providers";
 
 export const mulish = Mulish({
   subsets: ['latin'],
@@ -22,8 +23,9 @@ export default function RootLayout({
       <body
         className={`${mulish.className} antialiased bg-slate-50`}
       >
-        {children}
-
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
