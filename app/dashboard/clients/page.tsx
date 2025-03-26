@@ -94,7 +94,7 @@ export default function Client() {
                             <td className="w-[15%]">Medan</td>
                             <td className="w-[25%]">Jln K L Yos Sudarso No. 153 AB</td>
                             <td><span className={clsx("px-4 py-2 rounded-full text-white", true ? "bg-green-500" : "bg-red-500")}>Aktif</span></td>
-                            <td><Link href="">Lihat Detail</Link></td>
+                            <td><Link href="/dashboard/clients/1">Lihat Detail</Link></td>
                         </tr>
                     </tbody>
                 </table>
