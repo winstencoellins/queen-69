@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button, Pagination, Input} from "@heroui/react";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -19,72 +20,210 @@ interface clientForm {
     telephone: string;
 }
 
+interface client {
+    id: string;
+    name: string;
+    city: string;
+    address: string;
+    status: string;
+    telephone: string;
+}
+
 export default function Client() {
     const [message, setMessage] = useState<string>('')
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [showForm, setShowForm] = useState<boolean>(false);
-    const [color, setColor] = useState<string>('black');
+    const [valid, setValid] = useState<boolean>(true);
+
+    // Filter state
+    const [status, setStatus] = useState<string>("")
+    const [input, setInput] = useState<string>("")
+
+    const [clients, setClients] = useState<client[]>([]);
+    const [tempClients, setTempClients] = useState<client[]>([])
+
+    const maxRecords: number = 10
+
+    const [records, setRecords] = useState<number>(0)
+    const [startNumber, setStartNumber] = useState<number>(1)
+    const [endNumber, setEndNumber] = useState<number>(maxRecords)
+    const [pageNumber, setPageNumber] = useState<number>(1)
+    const [page, setPage] = useState<number>(0)
+
+    useEffect(() => {
+        fetchClients()
+    }, [])
+
+    /**
+     * Handles the creation of a new client
+     * and frontend validation. This function will first check
+     * the regex for phone number, then empty input. This function will
+     * show a warning message if the inputs are invalid.
+     *
+     * @param event - captures all values input to the form
+     * @returns - none
+     */
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+        event.preventDefault()
+
+        const formData: FormData = new FormData(event.currentTarget)
+
+        const formName: clientForm = {'clientName': 'Nama Klien', 'city': 'Kota', 'address': 'Alamat', 'telephone': 'Nomor Telepon'}
+
+        // Phone number regex and empty value validation
+        const pattern = /[^0-9]/
+        const telNum = formData.get('telephone') as string
+        const telephoneValidation = "No. Telepon yang dimasukkan invalid."
+
+        if (telNum.match(pattern) != null) {
+            setMessage(telephoneValidation)
+            setIsVisible(true)
+            setValid(false)
+            return
+        }
+
+        let count: number = 0;
+        let validString: string = "";
+
+        for (const pair of formData.entries()) {
+            if (pair[1] == "") {
+                count += 1
+
+                if (count > 1) {
+                    validString += ", "
+                }
+                validString += formName[pair[0] as keyof clientForm]
+            }
+        }
+
+        validString += ' tidak boleh kosong.'
+
+        if (count > 0) {
+            setMessage(validString)
+            setIsVisible(true)
+            setValid(false)
+            return
+        }
+
+        try {
+            const response = await fetch('/api/clients', {
+                method: "POST",
+                body: formData
+            })
+
+            const data = await response.json()
+
+            if (data.success) {
+                setShowForm(false)
+                setValid(true)
+            } else {
+                setValid(false)
+            }
+
+            setIsVisible(true)
+            setMessage(data.message)
+        } catch (error: any) {
+            console.log(error)
+        } finally {
+
+        }
+    }
+
+    /**
+     * Fetches the data of all the clients in the
+     * database to be shown into the table
+     *
+     * @returns - none
+     */
+    const fetchClients = async (): Promise<void> => {
+        try {
+            const response = await fetch(`/api/clients`)
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch the data. Please try again.')
+            }
+
+            if (data.success) {
+                setClients(data.clients)
+                setTempClients(data.clients.slice(startNumber - 1, endNumber))
+                setRecords(data.clients.length)
+                setPage(Math.ceil(data.clients.length / maxRecords))
+            }
+        } catch (error) {
+            console.log(error)
+            setMessage('Gagal untuk memuat data. Silahkan coba lagi.')
+            setIsVisible(true)
+            setValid(false)
+        }
+    }
 
     /**
      * Show list of clients based on status applied
      * using the filter
-     * 
+     *
      * @param key - the value of the status that determines the filter condition (active, inactive, all)
      * @returns none
      */
     const onChangeDropwdown = async (key: Key): Promise<void> => {
         const status: string = key == 'active' ? 'Aktif' : key =='inactive' ? 'Tidak Aktif' : 'Semua'
 
-        try {
-            // Logic implementation for fetching filtered data
-            setMessage(`Filter status '${status}' telah berhasil diaplikasikan`)
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setIsVisible(true)
+        let result: client[];
+
+        if (key == 'all') {
+            result = clients
+        } else {
+            result = clients.filter((client) => client.status.toLowerCase() == key)
         }
+
+        setMessage(`Filter status '${status}' telah berhasil diaplikasikan`)
+        setTempClients(result)
+        setIsVisible(true)
+        setValid(true)
     }
 
     /**
-     * Handles the creation of a new client
-     * 
-     * @param event - captures all values input to the form
+     * Filter client list base on the page number and
+     * show specific client page
+     *
+     * @param pageNumber - the number of current page
+     * @returns - none
      */
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
-        event.preventDefault()
+    const onChangePagination = (pageNumber: number): void => {
+        const start: number = ((pageNumber - 1) * maxRecords) + 1
+        const end: number = maxRecords * pageNumber
 
-        console.log('T')
+        setStartNumber(start)
+        setEndNumber(end)
+        setPageNumber(pageNumber)
+        setTempClients(clients.slice(start - 1, end))
+    }
 
-        const formData: FormData = new FormData(event.currentTarget)
+    /**
+     * Filter the client list based on the value
+     * input by the user
+     *
+     * Note: Need to fix the logic
+     * @param value - value input by the user
+     */
+    const onChangeSearch = (value: string): void => {
+        resetPagination()
 
-        const formName: clientForm = {'clientName': 'nama klien', 'city': 'kota', 'address': 'alamat', 'telephone': 'nomor telepon'}
-        let count: number = 0;
-        let s: string = "Informasi klien baru: ";
+        const result: client[] = clients.filter((client: client) => client.name.toLocaleLowerCase().includes(value.toLowerCase()))
 
-        for (const pair of formData.entries()) {
-            if (pair[1] == "") {
-                s += formName[pair[0] as keyof clientForm] + " "
-                count += 1
-            }
-        }
+        console.log(result)
+        setPage(Math.ceil(result.length / maxRecords))
 
-        s += ' tidak boleh kosong.'
-
-        if (count > 0) {
-            setMessage(s)
-            setColor('red-500')
-            setIsVisible(true)
-            return
-        }
-
-        try {
-
-            setMessage('Klien baru berhasil ditambahkan')
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setShowForm(false)
-            setIsVisible(true)
+        if (Math.ceil(result.length / maxRecords) == 0) {
+            setStartNumber(0)
+            setEndNumber(0)
+            setPageNumber(0)
+            setTempClients(result)
+        } else {
+            setPage(Math.ceil(result.length / maxRecords))
+            setTempClients(result.slice(((pageNumber - 1) * maxRecords) + 1 - 1, (pageNumber * maxRecords)))
+            setRecords(result.length)
         }
     }
 
@@ -130,18 +269,24 @@ export default function Client() {
                     </div>
                     <div className="mb-2 text-sm">
                         <label className="mb-1">Kota</label>
-                        <Input name='city' className="bg-slate-200 rounded-lg" placeholder="Medan"/>
+                        <Input name='city' className="bg-slate-200 rounded-lg" placeholder="Medan" classNames={{
+                            input: "focus:outline-none"
+                        }}/>
                     </div>
                     <div className="mb-2 text-sm">
                         <label className="mb-1">Alamat</label>
-                        <Input name='address' className="bg-slate-200 rounded-lg" placeholder="Jalan Karya" />
+                        <Input name='address' className="bg-slate-200 rounded-lg" placeholder="Jalan Karya" classNames={{
+                            input: "focus:outline-none"
+                        }}/>
                     </div>
                     <div className="mb-2 text-sm">
                         <label className="mb-1">No. Telepon</label>
-                        <Input name='telephone' startContent={<p className="mr-2">+62</p>} className="bg-slate-200 rounded-lg" placeholder="8123456789"/>
+                        <Input name='telephone' startContent={<p className="mr-2">+62</p>} className="bg-slate-200 rounded-lg" placeholder="8123456789" classNames={{
+                            input: "focus:outline-none"
+                        }}/>
                     </div>
 
-                    <Button type="submit">Buat Baru</Button>
+                    <Button type="submit" className="bg-yellow-500 rounded-lg mt-3 text-white hover:cursor-pointer">Buat Baru</Button>
                 </form>
                 :
                 <></>
@@ -156,9 +301,14 @@ export default function Client() {
                         startContent={
                             <Image src={search} alt='icon' width={20} height={20} className="mr-2" />
                         }
+                        classNames={{
+                            input: "focus:outline-none"
+                        }}
                         placeholder="Masukkan nama klien..."
                         type='text'
                         className="w-1/4 bg-slate-100 rounded-lg"
+                        // onValueChange={(value: string) => onChangeSearch(value)}
+                        disabled
                     />
                 </div>
 
@@ -166,8 +316,7 @@ export default function Client() {
 
                 <table className="table-auto w-full">
                     <thead>
-                        <tr className="text-left">
-                            <th className="pb-5">No</th>
+                        <tr className="text-left text-slate-400">
                             <th className="pb-5">Nama Klien</th>
                             <th className="pb-5">Kota</th>
                             <th className="pb-5">Alamat</th>
@@ -176,39 +325,50 @@ export default function Client() {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td className="py-5">1</td>
-                            <td className="w-[25%]">
-                                <p>
-                                    Winsten Coellins <br />
-                                    <span className="text-xs">+62 8116359119</span>
-                                </p>
-                            </td>
-                            <td className="w-[15%]">Medan</td>
-                            <td className="w-[25%]">Jln K L Yos Sudarso No. 153 AB</td>
-                            <td><span className={clsx("px-4 py-2 rounded-full text-white", true ? "bg-green-500" : "bg-red-500")}>Aktif</span></td>
-                            <td><Link href="/dashboard/clients/1">Lihat Detail</Link></td>
-                        </tr>
+                        {
+                            tempClients.map((client) => (
+                                <tr key={client.name}>
+                                    <td className="w-[25%] py-2">
+                                        <p className="font-semibold">
+                                            {client.name} <br />
+                                            <span className="text-xs font-normal">+62 {client.telephone}</span>
+                                        </p>
+                                    </td>
+                                    <td className="w-[15%]">{client.city}</td>
+                                    <td className="w-[25%]">{client.address}</td>
+                                    <td><span className={clsx("px-5 py-1 rounded-full", client.status == 'ACTIVE' ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{client.status == 'ACTIVE' ? 'Aktif' : 'Tidak Aktif'}</span></td>
+                                    <td><Link href={`/dashboard/clients/${client.id}`}>Lihat Detail</Link></td>
+                                </tr>
+                            ))
+                        }
                     </tbody>
                 </table>
+
+                {
+                    records == 0
+                    ?
+                    <div className="mt-3">Tidak ada data yang tersedia...</div>
+                    :
+                    <></>
+                }
             </div>
 
             {/* Pagination */}
             <div className="flex justify-between items-center mt-5">
-                <p className="text-sm">Showing 0 to 1 from 1 results</p>
+                <p className="text-sm">Showing {tempClients.length == 0 ? "0" : startNumber} to {tempClients.length < maxRecords * pageNumber ? tempClients.length : maxRecords * pageNumber} from {records} results</p>
 
-                <Pagination total={10} classNames={{
+                <Pagination total={page} classNames={{
                     item: "bg-green-200 rounded-lg px-3",
-                    cursor: "px-3 bg-green-500 rounded-lg"
-                }} />
+                    cursor: "px-3 bg-green-500 rounded-lg duration-200"
+                }}/>
             </div>
 
             {/* Toast */}
             {
                 isVisible ?
-                <div className={`fixed bottom-5 right-5 bg-${color} text-white w-1/4 py-5 rounded-lg px-4 flex justify-between items-center z-20`}>
+                <div className={`fixed bottom-5 right-5 ${valid ? 'bg-green-700' : 'bg-red-700'} text-white w-[30%] py-5 rounded-lg px-4 flex justify-between items-center z-20`}>
                     <p>{message}</p>
-                    <Button onPress={() => setIsVisible(false)} className="bg-white text-black rounded-lg ml-3 cursor-pointer">Tutup</Button>
+                    <Button onPress={() => {setIsVisible(false); setValid(true)}} className={`bg-white text-black rounded-lg ml-3 cursor-pointer px-4 ${valid ? 'text-green-700' : 'text-red-700'}`}>Tutup</Button>
                 </div>
                 :
                 <></>

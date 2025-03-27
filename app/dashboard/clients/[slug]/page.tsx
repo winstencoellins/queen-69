@@ -19,7 +19,7 @@ export default function ClientDetail() {
     /**
      * Handles the submission to update the existing
      * client's data
-     * 
+     *
      * @param event - capture all the inputs from the form
      * @returns none
      */
@@ -51,7 +51,11 @@ export default function ClientDetail() {
         }
     }
 
-    const fetchClientDetail = async () => {
+    /**
+     * Fetches the detailed data for specific
+     * client and show it to the user.
+     */
+    const fetchClientDetail = async (): Promise<void> => {
         try {
 
         } catch (error) {
@@ -134,7 +138,7 @@ export default function ClientDetail() {
                         }
                     </form>
                 </div>
-                
+
                 <div>
                     <div className="grid grid-cols-3">
                         <div className="bg-white rounded-lg h-fit px-10 py-5 flex">
@@ -178,13 +182,13 @@ export default function ClientDetail() {
                         </table>
 
                         {
-                            true 
-                            ? 
-                            <div className="mt-3 text-sm">Tidak ada data yang tersedia ...</div> 
-                            : 
+                            true
+                            ?
+                            <div className="mt-3 text-sm">Tidak ada data yang tersedia ...</div>
+                            :
                             <></>
                         }
-                        
+
                         {
                             true
                             ?
@@ -230,15 +234,15 @@ export default function ClientDetail() {
                                 <></>
                             }
                         </table>
-                        
+
                         {
-                            true 
-                            ? 
-                            <div className="mt-3 text-sm">Tidak ada data yang tersedia ...</div> 
-                            : 
+                            true
+                            ?
+                            <div className="mt-3 text-sm">Tidak ada data yang tersedia ...</div>
+                            :
                             <></>
                         }
-                        
+
                         {
                             true
                             ?
@@ -259,7 +263,7 @@ export default function ClientDetail() {
             {/* Toast */}
             {
                 isVisible ?
-                <div className="fixed bottom-5 right-5 bg-black text-white w-1/4 py-5 rounded-lg px-4 flex justify-between items-center z-20">
+                <div className="fixed bottom-5 right-5 bg-black text-white w-[30%] py-5 rounded-lg px-4 flex justify-between items-center z-20">
                     <p>{message}</p>
                     <Button onPress={() => setIsVisible(false)} className="bg-white text-black rounded-lg ml-5 cursor-pointer">Tutup</Button>
                 </div>
