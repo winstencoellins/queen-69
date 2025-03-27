@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button, Pagination, Input} from "@heroui/react";
+import { Button, Input, Pagination } from "@heroui/react";
 
 import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
@@ -10,7 +10,6 @@ import Link from "next/link";
 import add from "@/public/svgs/add.svg"
 import search from "@/public/svgs/search.svg"
 
-import { Key } from "@react-types/shared";
 import clsx from "clsx";
 
 interface clientForm {
@@ -34,21 +33,16 @@ export default function Client() {
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [showForm, setShowForm] = useState<boolean>(false);
     const [valid, setValid] = useState<boolean>(true);
-
-    // Filter state
-    const [status, setStatus] = useState<string>("")
-    const [input, setInput] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     const [clients, setClients] = useState<client[]>([]);
     const [tempClients, setTempClients] = useState<client[]>([])
 
-    const maxRecords: number = 10
+    const maxRecords: number = 8
 
     const [records, setRecords] = useState<number>(0)
-    const [startNumber, setStartNumber] = useState<number>(1)
-    const [endNumber, setEndNumber] = useState<number>(maxRecords)
-    const [pageNumber, setPageNumber] = useState<number>(1)
     const [page, setPage] = useState<number>(0)
+    const pageNumber: number = 1
 
     useEffect(() => {
         fetchClients()
@@ -147,84 +141,39 @@ export default function Client() {
 
             if (data.success) {
                 setClients(data.clients)
-                setTempClients(data.clients.slice(startNumber - 1, endNumber))
                 setRecords(data.clients.length)
                 setPage(Math.ceil(data.clients.length / maxRecords))
+                setTempClients(data.clients.slice(((pageNumber - 1) * maxRecords), (pageNumber * maxRecords)))
             }
         } catch (error) {
             console.log(error)
             setMessage('Gagal untuk memuat data. Silahkan coba lagi.')
             setIsVisible(true)
             setValid(false)
+        } finally {
+            setIsLoading(false)
         }
     }
 
-    /**
-     * Show list of clients based on status applied
-     * using the filter
-     *
-     * @param key - the value of the status that determines the filter condition (active, inactive, all)
-     * @returns none
-     */
-    const onChangeDropwdown = async (key: Key): Promise<void> => {
-        const status: string = key == 'active' ? 'Aktif' : key =='inactive' ? 'Tidak Aktif' : 'Semua'
+    const handleChange = (pageNumber: number = 1) => {
+        const dropdown: any = document.getElementById("dropdown")
+        const search: any = document.getElementById("search")
 
-        let result: client[];
-
-        if (key == 'all') {
-            result = clients
+        if (dropdown.value != "all") {
+            var firstFilter: any = clients.filter((client) => client.status.toLowerCase() == dropdown.value)
         } else {
-            result = clients.filter((client) => client.status.toLowerCase() == key)
+            var firstFilter: any = clients
         }
 
-        setMessage(`Filter status '${status}' telah berhasil diaplikasikan`)
-        setTempClients(result)
-        setIsVisible(true)
-        setValid(true)
-    }
+        if (search.value != "") {
+            var result: any = firstFilter.filter((client: any) => client.name.toLowerCase().includes(search.value.toLowerCase()))
+        } else {
+            var result: any = firstFilter
+        }
 
-    /**
-     * Filter client list base on the page number and
-     * show specific client page
-     *
-     * @param pageNumber - the number of current page
-     * @returns - none
-     */
-    const onChangePagination = (pageNumber: number): void => {
-        const start: number = ((pageNumber - 1) * maxRecords) + 1
-        const end: number = maxRecords * pageNumber
-
-        setStartNumber(start)
-        setEndNumber(end)
-        setPageNumber(pageNumber)
-        setTempClients(clients.slice(start - 1, end))
-    }
-
-    /**
-     * Filter the client list based on the value
-     * input by the user
-     *
-     * Note: Need to fix the logic
-     * @param value - value input by the user
-     */
-    const onChangeSearch = (value: string): void => {
-        resetPagination()
-
-        const result: client[] = clients.filter((client: client) => client.name.toLocaleLowerCase().includes(value.toLowerCase()))
-
-        console.log(result)
         setPage(Math.ceil(result.length / maxRecords))
-
-        if (Math.ceil(result.length / maxRecords) == 0) {
-            setStartNumber(0)
-            setEndNumber(0)
-            setPageNumber(0)
-            setTempClients(result)
-        } else {
-            setPage(Math.ceil(result.length / maxRecords))
-            setTempClients(result.slice(((pageNumber - 1) * maxRecords) + 1 - 1, (pageNumber * maxRecords)))
-            setRecords(result.length)
-        }
+        setRecords(result.length)
+        setTempClients(result.slice(((pageNumber - 1) * maxRecords), (maxRecords * pageNumber)))
     }
 
     return (
@@ -234,16 +183,14 @@ export default function Client() {
 
                 <div className="flex items-center">
                     {/* Dropdown */}
-                    <Dropdown>
-                        <DropdownTrigger>
-                            <Button variant="bordered" className="border border-slate-200 rounded-lg cursor-pointer">Filter Status</Button>
-                        </DropdownTrigger>
-                        <DropdownMenu aria-label="Static Actions" className="bg-white px-4 rounded-lg" onAction={(key) => onChangeDropwdown(key)}>
-                            <DropdownItem key="all" className="cursor-pointer">Semua</DropdownItem>
-                            <DropdownItem key="active" className="cursor-pointer">Aktif</DropdownItem>
-                            <DropdownItem key="inactive" className="cursor-pointer">Tidak Aktif</DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
+                    <div className="flex items-center">
+                        <p className="mr-2">Filter Status</p>
+                        <select id="dropdown" onChange={() => handleChange()} className="bg-slate-200 px-10 py-1.5 rounded-lg appearance-none text-center hover:cursor-pointer">
+                            <option value="all">Semua</option>
+                            <option value="active">Aktif</option>
+                            <option value="inactive">Tidak Aktif</option>
+                        </select>
+                    </div>
 
                     <Button className="bg-green-200 rounded-lg ml-5" onPress={() => showForm ? setShowForm(false) : setShowForm(true)}>
                         <Image src={add} alt="icon" width={20} height={20} />
@@ -307,8 +254,8 @@ export default function Client() {
                         placeholder="Masukkan nama klien..."
                         type='text'
                         className="w-1/4 bg-slate-100 rounded-lg"
-                        // onValueChange={(value: string) => onChangeSearch(value)}
-                        disabled
+                        id="search"
+                        onChange={() => handleChange()}
                     />
                 </div>
 
@@ -347,7 +294,7 @@ export default function Client() {
                 {
                     records == 0
                     ?
-                    <div className="mt-3">Tidak ada data yang tersedia...</div>
+                    <div className="mt-3">{isLoading ? "Sedang memuat data..." :  "Tidak ada data yang tersedia..."}</div>
                     :
                     <></>
                 }
@@ -355,12 +302,12 @@ export default function Client() {
 
             {/* Pagination */}
             <div className="flex justify-between items-center mt-5">
-                <p className="text-sm">Showing {tempClients.length == 0 ? "0" : startNumber} to {tempClients.length < maxRecords * pageNumber ? tempClients.length : maxRecords * pageNumber} from {records} results</p>
+                <p className="text-sm">{records} records</p>
 
                 <Pagination total={page} classNames={{
                     item: "bg-green-200 rounded-lg px-3",
                     cursor: "px-3 bg-green-500 rounded-lg duration-200"
-                }}/>
+                }} onChange={(page: number) => handleChange(page)}/>
             </div>
 
             {/* Toast */}
