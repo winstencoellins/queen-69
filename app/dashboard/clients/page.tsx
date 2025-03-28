@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { Button, Input, Pagination } from "@heroui/react";
@@ -118,8 +117,6 @@ export default function Client() {
             setMessage(data.message)
         } catch (error: any) {
             console.log(error)
-        } finally {
-
         }
     }
 
@@ -147,7 +144,7 @@ export default function Client() {
             }
         } catch (error) {
             console.log(error)
-            setMessage('Gagal untuk memuat data. Silahkan coba lagi.')
+            setMessage('Gagal untuk memuat data. Silahkan muat ulang halaman ini lagi.')
             setIsVisible(true)
             setValid(false)
         } finally {
@@ -155,6 +152,13 @@ export default function Client() {
         }
     }
 
+    /**
+     * Outputs the changes for the client's list based
+     * on filter applied.
+     * Filter: search bar, client status, and pagination
+     *
+     * @param pageNumber - pagination onChange
+     */
     const handleChange = (pageNumber: number = 1) => {
         const dropdown: any = document.getElementById("dropdown")
         const search: any = document.getElementById("search")

@@ -6,15 +6,48 @@ import Link from "next/link"
 import building from "@/public/svgs/building.svg"
 import progress from "@/public/svgs/progress.svg"
 
-import { FormEvent, useState } from "react"
+import { FormEvent, useEffect, useState } from "react"
 import clsx from "clsx"
 
 import { Button, Input, Pagination } from "@heroui/react"
+import { usePathname } from "next/navigation"
+
+interface clientInfo {
+    name: string;
+    city: string;
+    address: string;
+    telephone: string;
+    status: string;
+}
 
 export default function ClientDetail() {
+    const path: string = usePathname()
+
     const [enableEdit, setEnableEdit] = useState<boolean>(false)
     const [isVisible, setIsVisible] = useState<boolean>(false)
     const [message, setMessage] = useState<string>('')
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [success, setSuccess] = useState<boolean>(true)
+
+    const [clientInfo, setClientInfo] = useState<clientInfo>({
+        name: "",
+        city: "",
+        address: "",
+        telephone: "",
+        status: ""
+    })
+
+    const [initialClientInfo, setInitialClientInfo] = useState<clientInfo>({
+        name: "",
+        city: "",
+        address: "",
+        telephone: "",
+        status: ""
+    })
+
+    useEffect(() => {
+        fetchClientDetail()
+    }, [])
 
     /**
      * Handles the submission to update the existing
@@ -26,12 +59,30 @@ export default function ClientDetail() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
 
-        try {
+        const formData = new FormData(event.currentTarget)
 
+        formData.set("status", "")
+
+        try {
+            const response = await fetch(`/api/clients/${path.split('/')[3]}`, {
+                method: "PUT",
+                body: formData
+            })
+
+            const data = await response.json()
+
+            if (!data.success) {
+                setSuccess(false)
+                setEnableEdit(true)
+            } else {
+                setEnableEdit(false)
+                setSuccess(true)
+            }
+
+            setMessage(data.message)
         } catch (error) {
             console.log(error)
         } finally {
-            setMessage('Data klien telah berhasil disimpan.')
             setIsVisible(true)
         }
     }
@@ -40,14 +91,31 @@ export default function ClientDetail() {
      * Set the status of the current client
      * to inactive
      */
-    const handleSubmitDeactivate = async () => {
-        try {
+    const handleDeactivate = async () => {
+        const formData = new FormData()
 
+        formData.set("status", clientInfo.status)
+
+        try {
+            const response = await fetch(`/api/clients/${path.split('/')[3]}`, {
+                method: "PUT",
+                body: formData
+            })
+
+            if (!response.ok) {
+                throw new Error('Something went wrong. Please try again.')
+            }
+
+            const data = await response.json()
+
+            if (data.success) {
+                setMessage(data.message)
+            }
+
+            setIsVisible(true)
         } catch (error) {
             console.log(error)
-        } finally {
-            setMessage('Data klien telah berhasil dinonaktifkan.')
-            setIsVisible(true)
+            setSuccess(false)
         }
     }
 
@@ -57,10 +125,56 @@ export default function ClientDetail() {
      */
     const fetchClientDetail = async (): Promise<void> => {
         try {
+            const response = await fetch(`/api/clients/${path.split('/')[3]}`)
 
+            const data = await response.json()
+
+            if (data.success) {
+                setClientInfo({
+                    name: data.clientDetail.name,
+                    city: data.clientDetail.city,
+                    address: data.clientDetail.address,
+                    telephone: data.clientDetail.telephone,
+                    status: data.clientDetail.status
+                })
+                setInitialClientInfo({
+                    name: data.clientDetail.name,
+                    city: data.clientDetail.city,
+                    address: data.clientDetail.address,
+                    telephone: data.clientDetail.telephone,
+                    status: data.clientDetail.status
+                })
+            }
         } catch (error) {
-
+            console.log(error)
+            setMessage('Gagal untuk memuat detail klien. Silahkan muat ulang halaman ini.')
+        } finally {
+            setIsLoading(false)
         }
+    }
+
+    /**
+     * Handles the changes of the word when the user
+     * edits the input
+     *
+     * @param e - specific input element triggered by user
+     * @returns none
+     */
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        const { name, value } = e.target
+
+        setClientInfo(prev => ({...prev, [name]: value}))
+    }
+
+    /**
+     * Reset the form when user clicks on back button
+     * after the form has been modified
+     *
+     * @returns none
+     */
+    const handleReset = (): void => {
+        setClientInfo(initialClientInfo)
+        setEnableEdit(false)
     }
 
     return (
@@ -77,7 +191,7 @@ export default function ClientDetail() {
                             ?
                             <></>
                             :
-                            <h1 className="text-2xl text-center">Lumibyte Mdn</h1>
+                            <h1 className="text-2xl text-center">{clientInfo.name} - {clientInfo.status}</h1>
                         }
 
                         <div className="flex justify-center">
@@ -88,7 +202,7 @@ export default function ClientDetail() {
                                 :
                                 <div className="flex">
                                     <Button onPress={() => setEnableEdit(true)} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer mr-5">Edit Klien</Button>
-                                    <Button onPress={handleSubmitDeactivate} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer">Nonaktifkan</Button>
+                                    <Button onPress={handleDeactivate} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer">{clientInfo.status == "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}</Button>
                                 </div>
                             }
                         </div>
@@ -100,29 +214,37 @@ export default function ClientDetail() {
                             <div>
                                 <div>
                                     <label>Nama Klien</label>
-                                    <Input type="text" placeholder="Nama Klien" className="bg-slate-200 rounded-lg mb-3 mt-1" value={"Lumibyte Mdn"}/>
+                                    <Input type="text" placeholder="Nama Klien" className="bg-slate-200 rounded-lg mb-3 mt-1" value={clientInfo.name} classNames={{
+                                        input: "focus:outline-none"
+                                    }} onChange={handleChange} name="name"/>
                                 </div>
 
                                 <div>
                                     <label>Kota</label>
-                                    <Input type="text" placeholder="Kota" className="bg-slate-200 rounded-lg mb-3 mt-1" value={"Medan"}/>
+                                    <Input type="text" placeholder="Kota" className="bg-slate-200 rounded-lg mb-3 mt-1" value={clientInfo.city} classNames={{
+                                        input: "focus:outline-none"
+                                    }} onChange={handleChange} name="city"/>
                                 </div>
 
                                 <div>
                                     <label>Alamat</label>
-                                    <Input type="text" placeholder="Alamat" className="bg-slate-200 rounded-lg mb-3" value={"Jalan K L Yos Sudarso No. 153 AB"}/>
+                                    <Input type="text" placeholder="Alamat" className="bg-slate-200 rounded-lg mb-3" value={clientInfo.address} classNames={{
+                                        input: "focus:outline-none"
+                                    }} onChange={handleChange} name="address"/>
                                 </div>
 
                                 <div>
                                     <label>No. Telepon</label>
-                                    <Input type="text" startContent={<p className="mr-2">+62</p>} placeholder="No. Telepon" className="bg-slate-200 rounded-lg mb-3" value={"8116359119"}/>
+                                    <Input type="text" startContent={<p className="mr-2">+62</p>} placeholder="No. Telepon" className="bg-slate-200 rounded-lg mb-3" value={clientInfo.telephone} classNames={{
+                                        input: "focus:outline-none"
+                                    }} onChange={handleChange} name="telephone"/>
                                 </div>
                             </div>
                             :
                             <div>
-                                <Input type="text" value="Medan" className="bg-slate-200 rounded-lg mb-5"  disabled={true}/>
-                                <Input type="text" value="Jalan K L Yos Sudarso No. 153AB" className="bg-slate-200 rounded-lg mb-5" disabled={true}/>
-                                <Input type="text" value="8116359119" startContent={<p className="mr-2">+62</p>} className="bg-slate-200 rounded-lg mb-5" disabled={true}/>
+                                <Input type="text" value={clientInfo.city} className="bg-slate-200 rounded-lg mb-5"  disabled={true}/>
+                                <Input type="text" value={clientInfo.address} className="bg-slate-200 rounded-lg mb-5" disabled={true}/>
+                                <Input type="text" value={clientInfo.telephone} startContent={<p className="mr-2">+62</p>} className="bg-slate-200 rounded-lg mb-5" disabled={true}/>
                             </div>
                         }
 
@@ -130,7 +252,7 @@ export default function ClientDetail() {
                             enableEdit
                             ?
                             <div>
-                                <Button onPress={() => setEnableEdit(false)} className="hover:cursor-pointer">Kembali</Button>
+                                <Button onPress={handleReset} className="hover:cursor-pointer">Kembali</Button>
                                 <Button type="submit" className="hover:cursor-pointer">Simpan</Button>
                             </div>
                             :
@@ -263,9 +385,9 @@ export default function ClientDetail() {
             {/* Toast */}
             {
                 isVisible ?
-                <div className="fixed bottom-5 right-5 bg-black text-white w-[30%] py-5 rounded-lg px-4 flex justify-between items-center z-20">
+                <div className={`fixed bottom-5 right-5 ${success ? "bg-green-700" : "bg-red-700"} text-white w-[30%] py-5 rounded-lg px-4 flex justify-between items-center z-20`}>
                     <p>{message}</p>
-                    <Button onPress={() => setIsVisible(false)} className="bg-white text-black rounded-lg ml-5 cursor-pointer">Tutup</Button>
+                    <Button onPress={() => setIsVisible(false)} className={`bg-white text-black rounded-lg ml-5 cursor-pointer ${success ? "text-green-700" : "text-red-700"}`}>Tutup</Button>
                 </div>
                 :
                 <></>
