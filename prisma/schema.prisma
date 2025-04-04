@@ -27,6 +27,23 @@ model Client {
   address       String
   telephone     String
   status        ClientStatus    @default(ACTIVE)
+
+  workOrders    WorkOrder[]
+}
+
+model WorkOrder {
+  id                      String          @id @default(uuid())
+  workOrderNumber         String          @unique
+  estimatedFinsihDate     DateTime
+  worker                  String
+
+  client                  Client          @relation(fields: [clientId], references: [id])
+  clientId                String
+
+  notes                   String?
+  itemDescription         String
+  quantity                Int
+  price                   Int
 }
 
 enum ClientStatus {

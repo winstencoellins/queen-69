@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Mulish } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
-export const mulish = Mulish({
+export const nunitoSans = Nunito_Sans({
   subsets: ['latin'],
   display: 'swap',
 })
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${mulish.className} antialiased bg-slate-50`}
+        className={`${nunitoSans.className} antialiased bg-slate-50`}
       >
         <Providers>
           {children}
