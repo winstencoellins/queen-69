@@ -57,9 +57,15 @@ export default function ClientDetail() {
      * @returns none
      */
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        setIsLoading(true)
+
         event.preventDefault()
 
-        const formData = new FormData(event.currentTarget)
+        const formData = new FormData()
+
+        for (const [key, value] of Object.entries(clientInfo)) {
+            formData.set(key, value)
+        }
 
         formData.set("status", "")
 
@@ -84,6 +90,7 @@ export default function ClientDetail() {
             console.log(error)
         } finally {
             setIsVisible(true)
+            setIsLoading(false)
         }
     }
 
@@ -92,6 +99,8 @@ export default function ClientDetail() {
      * to inactive
      */
     const handleDeactivate = async () => {
+        setIsLoading(true)
+
         const formData = new FormData()
 
         formData.set("status", clientInfo.status)
@@ -110,12 +119,15 @@ export default function ClientDetail() {
 
             if (data.success) {
                 setMessage(data.message)
+                setSuccess(true)
             }
 
             setIsVisible(true)
         } catch (error) {
             console.log(error)
             setSuccess(false)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -149,7 +161,7 @@ export default function ClientDetail() {
             console.log(error)
             setMessage('Gagal untuk memuat detail klien. Silahkan muat ulang halaman ini.')
         } finally {
-            setIsLoading(false)
+            // setIsLoading(false)
         }
     }
 
@@ -162,6 +174,8 @@ export default function ClientDetail() {
      */
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { name, value } = e.target
+
+        console.log(name, value)
 
         setClientInfo(prev => ({...prev, [name]: value}))
     }
@@ -184,14 +198,16 @@ export default function ClientDetail() {
                 <div className="bg-white px-5 py-5 flex flex-col w-[40%] rounded-lg items-center mr-5 h-fit">
                     <Image src={building} alt="icon" width={70} height={70} />
 
-
                     <form onSubmit={handleSubmit} className="w-full">
                         {
                             enableEdit
                             ?
                             <></>
                             :
-                            <h1 className="text-2xl text-center">{clientInfo.name} - {clientInfo.status}</h1>
+                            <div className="flex flex-col-reverse items-center">
+                                <h1 className="text-2xl">{clientInfo.name}</h1>
+                                <p className={clsx("px-4 py-1 text-white w-fit rounded-lg mt-5 mb-2", clientInfo.status == "ACTIVE" ? "bg-gradient-to-l from-green-500 to-green-600" : "bg-gradient-to-l from-red-500 to-red-600")}>{clientInfo.status == "ACTIVE" ? "Aktif" : "Nonaktif"}</p>
+                            </div>
                         }
 
                         <div className="flex justify-center">
@@ -202,7 +218,7 @@ export default function ClientDetail() {
                                 :
                                 <div className="flex">
                                     <Button onPress={() => setEnableEdit(true)} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer mr-5">Edit Klien</Button>
-                                    <Button onPress={handleDeactivate} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer">{clientInfo.status == "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}</Button>
+                                    <Button disabled={isLoading} onPress={handleDeactivate} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer">{clientInfo.status == "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}</Button>
                                 </div>
                             }
                         </div>
@@ -253,7 +269,7 @@ export default function ClientDetail() {
                             ?
                             <div>
                                 <Button onPress={handleReset} className="hover:cursor-pointer">Kembali</Button>
-                                <Button type="submit" className="hover:cursor-pointer">Simpan</Button>
+                                <Button disabled={isLoading} type="submit" className="hover:cursor-pointer">Simpan</Button>
                             </div>
                             :
                             <></>

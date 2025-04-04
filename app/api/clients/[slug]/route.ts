@@ -26,37 +26,42 @@ export async function PUT(req: NextRequest) {
     console.log(data.get("status"))
     const clientId: string = req.url.split('/')[5]
 
-    const clientExist = await prisma.client.findFirst({
-        where: {
-            name: data.get('name') as string
-        }
-    })
-
-    if (clientExist != null) {
-        return NextResponse.json({ success: false, message: "Tidak bisa menyimpan klien dengan nama yang sama. Silahkan menggunakan nama klien yang lain." }, { status: 409 })
-    }
 
     if (data.get("status") == "") {
-        // const updateClient = await prisma.client.update({
-        //     where: {
-        //         id: clientId
-        //     },
-        //     data: {
-        //        name: data.name as string,
-        //        city: data.city as string,
-        //        address: data.address as string,
-        //        telephone: data.telephone as string
-        //     }
-        // })
+        const clientExist = await prisma.client.findFirst({
+            where: {
+                name: data.get('name') as string
+            }
+        })
+
+        if (clientExist != null) {
+            return NextResponse.json({ success: false, message: "Tidak bisa menyimpan klien dengan nama yang sama. Silahkan menggunakan nama klien yang lain." }, { status: 409 })
+        }
+
+        const updateClient = await prisma.client.update({
+            where: {
+                id: clientId
+            },
+            data: {
+               name: data.get("name") as string,
+               city: data.get("city") as string,
+               address: data.get("address") as string,
+               telephone: data.get("telephone") as string
+            }
+        })
 
         return NextResponse.json({ success: true, message: "Data klien telah berhasil diperbaharui. Silahkan muat ulang halaman ini." }, { status: 200 })
     }
 
-    // const updateClient = await prisma.client.update({
-    //     where: {
-    //         id: clientId
-    //     }
-    // })
+    const status = data.get("status") == "ACTIVE" ? "INACTIVE" : "ACTIVE"
 
-    return NextResponse.json({ success: true, message: "Klien telah berhasil dinonaktifkan." }, { status: 200 })
+    const updateClientStatus = await prisma.client.update({
+        where: {
+            id: clientId
+        }, data: {
+            status: status
+        }
+    })
+
+    return NextResponse.json({ success: true, message: `${status == "ACTIVE" ? "Klien berhasil diaktifkan. Silahkan muat ulang halaman ini untuk melihat perubahan." : "Klien berhasil dinonaktifkan. Silahkan muat ulang halaman ini untuk melihat perubahan."}`}, { status: 200 })
 }
