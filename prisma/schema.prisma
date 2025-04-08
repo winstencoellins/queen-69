@@ -11,6 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+
 }
 
 model User {
@@ -32,18 +33,21 @@ model Client {
 }
 
 model WorkOrder {
-  id                      String          @id @default(uuid())
-  workOrderNumber         String          @unique
-  estimatedFinsihDate     DateTime
+  id                      String            @id @default(uuid())
+  workOrderNumber         String            @unique
+  estimatedFinishDate     DateTime
   worker                  String
 
-  client                  Client          @relation(fields: [clientId], references: [id])
+  client                  Client            @relation(fields: [clientId], references: [id])
   clientId                String
 
   notes                   String?
   itemDescription         String
   quantity                Int
   price                   Int
+
+  createdDate             DateTime          @default(now())
+  status                  WorkOrderStatus   @default(NOT_STARTED)
 }
 
 enum ClientStatus {

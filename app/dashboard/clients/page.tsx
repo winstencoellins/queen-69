@@ -287,7 +287,7 @@ export default function Client() {
                                     </td>
                                     <td className="w-[15%]">{client.city}</td>
                                     <td className="w-[25%]">{client.address}</td>
-                                    <td><span className={clsx("px-5 py-1 rounded-full", client.status == 'ACTIVE' ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{client.status == 'ACTIVE' ? 'Aktif' : 'Tidak Aktif'}</span></td>
+                                    <td><span className={clsx("px-5 py-1 rounded-full text-sm", client.status == 'ACTIVE' ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{client.status == 'ACTIVE' ? 'Aktif' : 'Tidak Aktif'}</span></td>
                                     <td><Link href={`/dashboard/clients/${client.id}`}>Lihat Detail</Link></td>
                                 </tr>
                             ))
