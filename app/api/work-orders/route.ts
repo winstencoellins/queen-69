@@ -14,6 +14,8 @@ export async function GET(req: NextRequest) {
             estimatedFinishDate: true,
             id: true,
             workOrderNumber: true,
+            itemDescription: true,
+            notes: true
         },
         orderBy: [
             {
@@ -29,9 +31,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     const data: any = await req.formData()
 
-    const workOrderExist = await prisma.workOrder.findFirst({
+    const workOrderExist = await prisma.workOrder.findUnique({
         where: {
-            workOrderNumber: data.workOrderNumber
+            workOrderNumber: data.get("workOrderNumber")
         }
     })
 
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
 
     const clientId: any = await prisma.client.findFirst({
         where: {
-            name: data.client
+            name: data.get("client")
         },
         select: {
             id: true

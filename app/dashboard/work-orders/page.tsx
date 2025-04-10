@@ -12,7 +12,7 @@ import clsx from "clsx"
 import add from "@/public/svgs/add.svg"
 import { useRouter } from "next/navigation"
 
-
+import { convertToDate } from "@/lib/utils"
 
 export default function WorkOrders() {
     const router = useRouter()
@@ -104,6 +104,7 @@ export default function WorkOrders() {
                         <tr>
                             <th># SPK</th>
                             <th>Klien</th>
+                            <th>Deskripsi Barang</th>
                             <th>Perkiraan Tanggal Selesai</th>
                             <th>Status</th>
                             <th>Aksi</th>
@@ -114,12 +115,13 @@ export default function WorkOrders() {
                             workOrders.map((workOrder: any) => (
                                 <tr key={workOrder.workOrderNumber} className="">
                                     <td className="py-5">{workOrder.workOrderNumber}</td>
-                                    <td>
+                                    <td className="">
                                         <p>{workOrder.client.name}<br />
                                         <span className="text-xs">+62 {workOrder.client.telephone}</span>
                                         </p>
                                     </td>
-                                    <td>{workOrder.estimatedFinishDate.split("T")[0]}</td>
+                                    <td><p>{workOrder.itemDescription} <br /><span className="text-xs">{workOrder.notes}</span></p></td>
+                                    <td>{convertToDate(workOrder.estimatedFinishDate.split("T")[0])}</td>
                                     <td><p className={clsx("px-5 py-1 w-fit text-sm rounded-full", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p></td>
                                     <td><Link href={`/dashboard/work-orders/${workOrder.id}`}>Lihat Detail</Link></td>
                                 </tr>
