@@ -15,7 +15,10 @@ const config = {
     './@/**/*.{ts,tsx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      'gold': '#BA9731',
+      'black': '#ODODOD'
+    },
   },
   plugins: [heroui()]
 }

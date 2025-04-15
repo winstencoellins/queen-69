@@ -65,3 +65,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, message: "Surat Perintah Kerja yang baru telah berhasil dibuat. Silahkan kembali ke halaman list SPK." }, { status: 201 })
 }
+
+export async function PUT(res: NextResponse) {
+
+}
