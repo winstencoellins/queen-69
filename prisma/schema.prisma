@@ -32,33 +32,41 @@ model Client {
 }
 
 model WorkOrder {
-  id                      String            @id @default(uuid())
-  workOrderNumber         String            @unique
+  id                      String                      @id @default(uuid())
+  workOrderNumber         String                      @unique
   estimatedFinishDate     DateTime
   worker                  String
 
-  client                  Client            @relation(fields: [clientId], references: [id])
+  client                  Client                      @relation(fields: [clientId], references: [id])
   clientId                String
 
   notes                   String?
   itemDescription         String
   quantity                Int
   price                   Int
+  packingPrice            Int                         
+  shippingPrice           Int                         
 
-  createdDate             DateTime          @default(now())
-  status                  WorkOrderStatus   @default(NOT_STARTED)
+  createdDate             DateTime                    @default(now())
+  status                  WorkOrderStatus             @default(NOT_STARTED)
 
-  invoice                 Invoice?
+  invoice                 Invoice?                    @relation(fields: [invoiceNumber], references: [invoiceNumber])
+  invoiceNumber           String?                              
+
+  availability            WorkOrderInvoiceStatus      @default(AVAILABLE)
 }
 
 model Invoice {
   id                      String            @id @default(uuid())
   invoiceNumber           String            @unique
 
-  workOrder               WorkOrder         @relation(fields: [workOrderNumber], references: [workOrderNumber])
-  workOrderNumber         String            @unique
+  createdDate             DateTime          @default(now())
 
-  status                  InvoiceStatus
+  createdBy               String?
+
+  workOrder               WorkOrder[]       
+
+  status                  InvoiceStatus     @default(UNPAID)
 }
 
 enum ClientStatus {
@@ -71,6 +79,11 @@ enum WorkOrderStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+enum WorkOrderInvoiceStatus {
+  AVAILABLE
+  UNAVAILABLE
 }
 
 enum InvoiceStatus {

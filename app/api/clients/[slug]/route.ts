@@ -28,15 +28,15 @@ export async function PUT(req: NextRequest) {
 
 
     if (data.get("status") == "") {
-        const clientExist = await prisma.client.findFirst({
-            where: {
-                name: data.get('name') as string
-            }
-        })
+        // const clientExist = await prisma.client.findFirst({
+        //     where: {
+        //         name: data.get('name') as string
+        //     }
+        // })
 
-        if (clientExist != null) {
-            return NextResponse.json({ success: false, message: "Tidak bisa menyimpan klien dengan nama yang sama. Silahkan menggunakan nama klien yang lain." }, { status: 409 })
-        }
+        // if (clientExist != null) {
+        //     return NextResponse.json({ success: false, message: "Tidak bisa menyimpan klien dengan nama yang sama. Silahkan menggunakan nama klien yang lain." }, { status: 409 })
+        // }
 
         const updateClient = await prisma.client.update({
             where: {

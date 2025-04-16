@@ -1,4 +1,4 @@
-import { Calendar, Users, Inbox, Search, Settings, Files } from "lucide-react"
+import { Users, Files, PersonStanding, Receipt } from "lucide-react"
 
 import {
   Sidebar,
@@ -14,6 +14,11 @@ import {
 // Menu items.
 const items = [
   {
+    title: "Karyawan",
+    url: "/dashboard/employees",
+    icon: PersonStanding,
+  },
+  {
     title: "Klien",
     url: "/dashboard/clients",
     icon: Users,
@@ -22,6 +27,11 @@ const items = [
     title: "Surat Perintah Kerja",
     url: "/dashboard/work-orders",
     icon: Files,
+  },
+  {
+    title: "Invoice",
+    url: "/dashboard/invoices",
+    icon: Receipt,
   },
 ]
 

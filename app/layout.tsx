@@ -22,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${mulish.className} antialiased bg-slate-50`}
+        suppressHydrationWarning={true}
       >
         <Providers>
           {children}

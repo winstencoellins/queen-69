@@ -15,7 +15,10 @@ export async function GET(req: NextRequest) {
             id: true,
             workOrderNumber: true,
             itemDescription: true,
-            notes: true
+            notes: true,
+            price: true,
+            quantity: true,
+            availability: true
         },
         orderBy: [
             {
@@ -59,7 +62,9 @@ export async function POST(req: NextRequest) {
             notes: data.get("notes"),
             itemDescription: data.get("itemDescription"),
             quantity: parseInt(data.get("quantity")),
-            price: parseInt(data.get("price"))
+            price: parseInt(data.get("price")),
+            packingPrice: parseInt(data.get("packingPrice")),
+            shippingPrice: parseInt(data.get("shippingPrice"))
         }
     })
 

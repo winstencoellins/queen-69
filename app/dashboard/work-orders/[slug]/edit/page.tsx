@@ -17,7 +17,9 @@ interface WorkOrder {
     notes: string;
     itemDescription: string;
     quantity: string;
-    price: string
+    price: string;
+    packingPrice: string;
+    shippingPrice: string;
     status: string;
     client: Client
 }
@@ -57,6 +59,8 @@ export default function EditWorkOrder () {
         itemDescription: "",
         quantity: "",
         price: "",
+        packingPrice: "",
+        shippingPrice: "",
         status: "",
         client: {
             id: "",
@@ -157,7 +161,9 @@ export default function EditWorkOrder () {
             notes: "Catatan",
             itemDescription: "Deskripsi Barang",
             quantity: "Kuantitas",
-            price: "Harga Barang"
+            price: "Harga Barang",
+            packingPrice: "Biaya Packing",
+            shippingPrice: "Biaya Pengiriman"
         }
 
         let s: string = ""
@@ -309,6 +315,24 @@ export default function EditWorkOrder () {
                                 startContent={<p className="mr-2">Rp. </p>} classNames={{
                                     input: "focus:outline-none"
                                 }} name="price" onChange={handleChange} value={workOrder.price} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Biaya Packing</td>
+                            <td>
+                                <Input placeholder="4500000" className="bg-slate-200 rounded-lg mb-3"
+                                startContent={<p className="mr-2">Rp. </p>} classNames={{
+                                    input: "focus:outline-none"
+                                }} name="packingPrice" onChange={handleChange} value={workOrder.packingPrice} />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Biaya Pengiriman</td>
+                            <td>
+                                <Input placeholder="4500000" className="bg-slate-200 rounded-lg mb-3"
+                                startContent={<p className="mr-2">Rp. </p>} classNames={{
+                                    input: "focus:outline-none"
+                                }} name="shippingPrice" onChange={handleChange} value={workOrder.shippingPrice} />
                             </td>
                         </tr>
                     </tbody>

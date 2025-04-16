@@ -29,7 +29,9 @@ interface WorkOrder {
     notes: string;
     itemDescription: string;
     quantity: string;
-    price: string
+    price: string;
+    shippingPrice: string;
+    packingPrice: string;
     status: string;
     client: Client
 }
@@ -60,6 +62,8 @@ export default function WorkOrderDetail() {
         itemDescription: "",
         quantity: "",
         price: "",
+        shippingPrice: "",
+        packingPrice: "",
         status: "",
         client: {
             id: "",
@@ -174,7 +178,7 @@ export default function WorkOrderDetail() {
                     </div>
 
                     <div>
-                        <h1 className="text-xl font-bold">Ringkasan Pesanan</h1>
+                        <h1 className="text-xl font-bold mt-10">Ringkasan Pesanan</h1>
 
                         <hr className="mt-2 mb-4" />
 
@@ -184,15 +188,20 @@ export default function WorkOrderDetail() {
                         </div>
 
                         <div className="flex justify-between my-2">
+                            <p>Biaya Packing</p>
+                            <p>Rp. {workOrder.packingPrice.toLocaleString()}</p>
+                        </div>
+
+                        <div className="flex justify-between my-2">
                             <p>Biaya Pengiriman</p>
-                            <p>Rp. 75,000</p>
+                            <p>Rp. {workOrder.shippingPrice.toLocaleString()}</p>
                         </div>
 
                         <hr className="my-3"/>
 
                         <div className="flex justify-between my-2 font-semibold">
                             <p>Total</p>
-                            <p>Rp. {(workOrder.price + 75000).toLocaleString()}</p>
+                            <p>Rp. {(workOrder.price + workOrder.shippingPrice + workOrder.packingPrice).toLocaleString()}</p>
                         </div>
                     </div>
 

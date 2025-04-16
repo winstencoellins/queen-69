@@ -84,7 +84,7 @@ export default function WorkOrders() {
     return (
         <>
             <div className=" px-5 py-4 rounded-lg flex flex-row items-center justify-between bg-white">
-                <h1 className="text-2xl">Work Orders</h1>
+                <h1 className="text-2xl">Surat Perintah Kerja</h1>
 
                 <div className="flex items-center">
                     {/* Dropdown */}

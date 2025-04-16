@@ -26,6 +26,8 @@ interface workOrderForm {
     itemDescription: string;
     quantity: number;
     price: number;
+    packingPrice: number;
+    shippingPrice: number;
 }
 
 export default function WorkOrderCreate() {
@@ -88,7 +90,9 @@ export default function WorkOrderCreate() {
             notes: "Catatan",
             itemDescription: "Deskripsi Barang",
             quantity: "Kuantitas",
-            price: "Harga Barang"
+            price: "Harga Barang",
+            packingPrice: "Biaya Packing",
+            shippingPrice: "Biaya Pengiriman"
         }
 
         let s: string = ""
@@ -122,6 +126,7 @@ export default function WorkOrderCreate() {
             setMessage("# SPK tidak sesuai. Silahkan melakukan pemeriksaan terhadap # SPK yang diinput. Format # SPK harus sesuai dengan yang dicontohkan.")
             setIsVisible(true)
             setValid(false)
+            setIsLoading(false)
             return
         }
 
@@ -241,6 +246,24 @@ export default function WorkOrderCreate() {
                                 startContent={<p className="mr-2">Rp. </p>} classNames={{
                                     input: "focus:outline-none"
                                 }} name="price" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Biaya Packing</td>
+                            <td>
+                                <Input placeholder="4500000" className="bg-slate-200 rounded-lg mb-3"
+                                startContent={<p className="mr-2">Rp. </p>} classNames={{
+                                    input: "focus:outline-none"
+                                }} name="packingPrice" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Biaya Pengiriman</td>
+                            <td>
+                                <Input placeholder="4500000" className="bg-slate-200 rounded-lg mb-3"
+                                startContent={<p className="mr-2">Rp. </p>} classNames={{
+                                    input: "focus:outline-none"
+                                }} name="shippingPrice" />
                             </td>
                         </tr>
                     </tbody>
