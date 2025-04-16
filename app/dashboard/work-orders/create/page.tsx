@@ -113,6 +113,7 @@ export default function WorkOrderCreate() {
             setMessage(s)
             setIsVisible(true)
             setValid(false)
+            setIsLoading(false)
             return
         }
 
@@ -166,14 +167,14 @@ export default function WorkOrderCreate() {
 
                 <div className="flex items-center">
                     {/* Dropdown */}
-                    <Button className="bg-green-200 rounded-lg ml-5 hover:cursor-pointer" onPress={handleClickBack}>
+                    <Button className="bg-[gold] rounded-lg ml-5 hover:cursor-pointer" onPress={handleClickBack}>
                         <Image src={back} alt="icon" width={20} height={20} />
                         <p>Kembali</p>
                     </Button>
                 </div>
             </div>
 
-            <form className="bg-white rounded-lg mt-5 px-5 py-5" onSubmit={handleSubmit}>
+            <form className="bg-white rounded-lg mt-5 px-5 py-5 shadow-lg" onSubmit={handleSubmit}>
                 <h1 className="text-xl">Informasi Surat Perintah Kerja</h1>
 
                 <hr className="my-2"/>
@@ -247,7 +248,7 @@ export default function WorkOrderCreate() {
 
                 <hr className="my-5" />
 
-                <Button type="submit" disabled={isLoading} className="hover:cursor-pointer">{isLoading ? "Sedang Memproses..." : "Buat SPK Baru"}</Button>
+                <Button type="submit" disabled={isLoading} className="hover:cursor-pointer bg-[gold] rounded-lg">{isLoading ? "Sedang Memproses..." : "Buat SPK Baru"}</Button>
             </form>
 
             {/* Toast */}

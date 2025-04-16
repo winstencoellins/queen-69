@@ -71,6 +71,12 @@ export default function WorkOrders() {
 
     }
 
+    /**
+     * Redirects the user to create work order
+     * page
+     *
+     * @returns none
+     */
     const handleClickCreate = (): void => {
         router.push('/dashboard/work-orders/create')
     }
@@ -82,14 +88,14 @@ export default function WorkOrders() {
 
                 <div className="flex items-center">
                     {/* Dropdown */}
-                    <Button className="bg-green-200 rounded-lg ml-5 hover:cursor-pointer" onPress={handleClickCreate}>
+                    <Button className="bg-[gold] rounded-lg ml-5 hover:cursor-pointer" onPress={handleClickCreate}>
                         <Image src={add} alt="icon" width={20} height={20} />
-                        <p>Tambah SPK</p>
+                        <p>{isLoading ? "Mengarahkan ..." : "Tambah SPK"}</p>
                     </Button>
                 </div>
             </div>
 
-            <div className="bg-white mt-5 px-5 py-5">
+            <div className="bg-white mt-5 px-5 py-5 rounded-lg shadow-lg">
                 <div>
                     <Button className={active ? `border-3 border-b-yellow-500 border-l-0 border-t-0 border-r-0 focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none` : `border-none`} onPress={handleChange} id="btn">Semua</Button>
                     <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={handleChange} id="btn">Belum Dimulai</Button>
@@ -122,7 +128,7 @@ export default function WorkOrders() {
                                     </td>
                                     <td><p>{workOrder.itemDescription} <br /><span className="text-xs">{workOrder.notes}</span></p></td>
                                     <td>{convertToDate(workOrder.estimatedFinishDate.split("T")[0])}</td>
-                                    <td><p className={clsx("px-5 py-1 w-fit text-sm rounded-full", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p></td>
+                                    <td><p className={clsx("px-5 py-1 w-fit text-sm rounded-full", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Sedang Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p></td>
                                     <td><Link href={`/dashboard/work-orders/${workOrder.id}`}>Lihat Detail</Link></td>
                                 </tr>
                             ))

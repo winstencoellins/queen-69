@@ -17,7 +17,9 @@ import address from "@/public/svgs/address.svg"
 import phone from "@/public/svgs/phone.svg"
 
 import wardobe from "@/public/images/wardobe.jpeg"
+
 import { useEffect, useState } from "react"
+import { setSourceMapsEnabled } from "process"
 
 interface WorkOrder {
     id: string;
@@ -42,6 +44,12 @@ interface Client {
 export default function WorkOrderDetail() {
     const path = usePathname();
     const router = useRouter();
+
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isVisible, setIsVisible] = useState<boolean>(false)
+    const [valid, setValid] = useState<boolean>(true)
+    const [message, setMessage] = useState<string>("")
+
 
     const [workOrder, setWorkOrder] = useState<WorkOrder>({
         id: "",
@@ -71,6 +79,41 @@ export default function WorkOrderDetail() {
 
     const handleNavigateDetail = () => {
         router.push(`${path}/edit`)
+    }
+
+    const handleChangeStatus = async (event: any): Promise<void> => {
+        setIsLoading(true)
+
+        const formData = new FormData()
+
+        formData.set("id", path.split("/")[3])
+        formData.set("status", event.target.name)
+
+        try {
+            const response = await fetch(`/api/work-orders/${path.split("/")[3]}`, {
+                method: "PUT",
+                body: formData
+            })
+
+            const data = await response.json()
+
+            if(!response.ok) {
+                throw new Error("Something went wrong. Please try again.")
+            }
+
+            setMessage(data.message)
+            setIsVisible(true)
+
+            if (data.success) {
+                setValid(true)
+            } else {
+                setValid(false)
+            }
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const fetchWorkOrderDetail = async () => {
@@ -108,7 +151,7 @@ export default function WorkOrderDetail() {
                 <div className="bg-white w-[80%] mr-10 py-5 px-5 rounded-lg shadow-lg">
                     <div className="mb-5 flex justify-between items-center">
                         <h1 className="text-lg font-bold">No. SPK: {workOrder.workOrderNumber} - {workOrder.worker}</h1>
-                        <p className={clsx("bg-slate-100 w-fit rounded-full px-5", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p>
+                        <p className={clsx("w-fit rounded-full px-5", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Sedang Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p>
                     </div>
 
                     <div className="mb-8">
@@ -123,7 +166,7 @@ export default function WorkOrderDetail() {
 
                             <div className="flex items-center">
                                 <div className="w-[500px]">
-                                    <h1 className="font-semibold text-lg">{workOrder.itemDescription}</h1>
+                                    <h1 className="font-semibold text-lg">{workOrder.itemDescription} ({workOrder.quantity}x)</h1>
                                     <p className="text-sm">{workOrder.notes}</p>
                                 </div>
                             </div>
@@ -136,7 +179,7 @@ export default function WorkOrderDetail() {
                         <hr className="mt-2 mb-4" />
 
                         <div className="flex justify-between my-2">
-                            <p>Subtotal ({workOrder.quantity} barang)</p>
+                            <p>Subtotal</p>
                             <p>Rp. {workOrder.price.toLocaleString()}</p>
                         </div>
 
@@ -153,11 +196,19 @@ export default function WorkOrderDetail() {
                         </div>
                     </div>
 
-                    <div className="flex justify-end mt-5">
-                        <Button className="bg-[gold] rounded-lg hover:cursor-pointer" onPress={handleNavigateDetail}>
-                            <Image src={edit} alt="icon" width={20} height={20} />
-                            Edit SPK
-                        </Button>
+                    <div className="flex mt-10">
+                        {
+                            workOrder.status == "COMPLETED"
+                            ?
+                            <Button className="bg-[gold] rounded-lg hover:cursor-pointer">
+                                Buat Invoice
+                            </Button>
+                            :
+                            <Button className="bg-[gold] rounded-lg hover:cursor-pointer" onPress={handleNavigateDetail}>
+                                <Image src={edit} alt="icon" width={20} height={20} />
+                                Edit SPK
+                            </Button>
+                        }
                     </div>
                 </div>
 
@@ -182,7 +233,7 @@ export default function WorkOrderDetail() {
                     </div>
 
                     {
-                        workOrder.status == "CANCELLED"
+                        workOrder.status == "CANCELLED" || workOrder.status == "COMPLETED"
                         ?
                         <></>
                         :
@@ -191,19 +242,37 @@ export default function WorkOrderDetail() {
                             {
                                 workOrder.status == "NOT_STARTED"
                                 ?
-                                <Button className="bg-red-100 w-full rounded-lg hover:cursor-pointer" value={"IN_PROGRESS"}>Sedang Diproses</Button>
+                                <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="IN_PROGRESS" onPress={(e) => handleChangeStatus(e)}>Sedang Diproses</Button>
                                 :
                                 workOrder.status == "IN_PROGRESS"
                                 ?
-                                <Button className="bg-red-100 w-full rounded-lg hover:cursor-pointer" value={"COMPLETED"}>Selesai</Button>
+                                <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="COMPLETED" onPress={(e) => handleChangeStatus(e)}>Selesai</Button>
                                 :
                                 <></>
                             }
-                            <Button className="bg-red-600 text-white w-full rounded-lg my-3 hover:cursor-pointer">Batal SPK</Button>
+
+                            {
+                                workOrder.status == "COMPLETED"
+                                ?
+                                <></>
+                                :
+                                <Button className="bg-red-600 text-white w-full rounded-lg my-3 hover:cursor-pointer" name="CANCELLED">Batal</Button>
+                            }
                         </div>
                     }
                 </div>
             </div>
+
+            {/* Toast */}
+            {
+                isVisible ?
+                <div className={`fixed bottom-5 right-5 ${valid ? 'bg-green-700' : 'bg-red-700'} text-white w-[30%] py-5 rounded-lg px-4 flex justify-between items-center z-20`}>
+                    <p>{message}</p>
+                    <Button onPress={() => {setIsVisible(false); setValid(true)}} className={`bg-white text-black rounded-lg ml-3 cursor-pointer px-4 ${valid ? 'text-green-700' : 'text-red-700'}`}>Tutup</Button>
+                </div>
+                :
+                <></>
+            }
         </>
     )
 }

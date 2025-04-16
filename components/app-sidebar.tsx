@@ -19,7 +19,7 @@ const items = [
     icon: Users,
   },
   {
-    title: "Work Order",
+    title: "Surat Perintah Kerja",
     url: "/dashboard/work-orders",
     icon: Files,
   },

@@ -4,7 +4,7 @@ import { Button,  Input } from "@heroui/react";
 
 import Image from "next/image";
 
-import { useState, useEffect, ChangeEvent, FormEventHandler } from "react";
+import { useState, useEffect, ChangeEvent, FormEventHandler, FormEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
 import back from "@/public/svgs/back.svg"
@@ -25,6 +25,17 @@ interface WorkOrder {
 interface Client {
     id: string;
     name: string;
+}
+
+interface workOrderForm {
+    workOrderNumber: string;
+    estimatedFinishDate: string;
+    worker: string;
+    client: string;
+    notes: string;
+    itemDescription: string;
+    quantity: number;
+    price: number;
 }
 
 export default function EditWorkOrder () {
@@ -92,7 +103,13 @@ export default function EditWorkOrder () {
         }
     }
 
-    const fetchClients = async () => {
+    /**
+     * Fetches the clients to populate the dropdown
+     * list.
+     *
+     * @returns none
+     */
+    const fetchClients = async (): Promise<void> => {
         try {
             const response = await fetch('/api/clients')
 
@@ -118,6 +135,99 @@ export default function EditWorkOrder () {
         setWorkOrder(prev => ({...prev, [name]: value}))
     }
 
+    /**
+     *
+     */
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+        setIsLoading(true)
+
+        event.preventDefault()
+
+        const formData: any = new FormData(event.currentTarget)
+
+        formData.set("status", "")
+        formData.set("id", path.split("/")[3])
+
+        // Work Order form validation in the frontend
+        const workOrderData = {
+            workOrderNumber: "# SPK",
+            estimatedFinishDate: "Perkiraan Tanggal Selesai",
+            worker: "Pekerja",
+            client: "Klien",
+            notes: "Catatan",
+            itemDescription: "Deskripsi Barang",
+            quantity: "Kuantitas",
+            price: "Harga Barang"
+        }
+
+        let s: string = ""
+        let count: number = 0
+
+        for (const pair of formData.entries()) {
+            console.log(pair[0], pair[1])
+            if (pair[0] == "status") {
+                continue
+            }
+
+            if (pair[1] == "") {
+                count += 1
+
+                if (count > 1) {
+                    s += ", "
+                }
+
+                s += workOrderData[pair[0] as keyof workOrderForm]
+            }
+        }
+
+        s += " tidak boleh kosong."
+
+        if (count > 0) {
+            setMessage(s)
+            setIsVisible(true)
+            setValid(false)
+            setIsLoading(false)
+            return
+        }
+
+        // Checking the validity of work order number written by user
+        if (formData.get("workOrderNumber").split("/").length != 3) {
+            setMessage("# SPK tidak sesuai. Silahkan melakukan pemeriksaan terhadap # SPK yang diinput. Format # SPK harus sesuai dengan yang dicontohkan.")
+            setIsVisible(true)
+            setValid(false)
+            return
+        }
+
+        try {
+            const response = await fetch(`/api/work-orders/${path.split("/")[3]}`, {
+                method: "PUT",
+                body: formData
+            })
+
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error("Something went wrong. Please try again.")
+            }
+
+            setMessage(data.message)
+            setIsVisible(true)
+
+            if (data.success) {
+                setValid(true)
+            } else {
+                setValid(false)
+            }
+        } catch (error) {
+            console.log(error)
+            setMessage("Gagal untuk mengirim data. Silahkan kirim ulang data ini lagi.")
+            setValid(false)
+        } finally {
+            setIsLoading(false)
+        }
+
+    }
+
     return (
         <>
             <div className=" px-5 py-4 rounded-lg flex flex-row items-center justify-between bg-white">
@@ -132,7 +242,7 @@ export default function EditWorkOrder () {
                 </div>
             </div>
 
-            <form className="bg-white rounded-lg mt-5 px-5 py-5">
+            <form className="bg-white rounded-lg mt-5 px-5 py-5" onSubmit={handleSubmit}>
                 <h1 className="text-xl">Informasi Surat Perintah Kerja</h1>
 
                 <hr className="my-2"/>
@@ -206,7 +316,7 @@ export default function EditWorkOrder () {
 
                 <hr className="my-5" />
 
-                <Button type="submit" disabled={isLoading} className="hover:cursor-pointer">{isLoading ? "Sedang Memproses..." : "Buat SPK Baru"}</Button>
+                <Button type="submit" disabled={isLoading} className="hover:cursor-pointer bg-[gold] rounded-lg">{isLoading ? "Sedang Memproses..." : "Simpan Data"}</Button>
             </form>
 
             {/* Toast */}
