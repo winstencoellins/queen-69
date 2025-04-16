@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
     const url = req.url
 
     const workOrder = await prisma.workOrder.findUnique({
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
     return NextResponse.json({ success: true, workOrder }, { status: 200 })
 }
 
-export async function PUT(req: NextRequest, res: NextResponse) {
+export async function PUT(req: NextRequest) {
     const data: any = await req.formData()
 
     console.log(data)
