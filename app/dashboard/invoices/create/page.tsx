@@ -10,17 +10,29 @@ import search from "@/public/svgs/search.svg"
 import { useRouter } from "next/navigation"
 import { useEffect, useState, FormEvent } from "react"
 
+interface InvoiceForm {
+    invoiceNumber: string;
+    clientName: string;
+    packingPrice: number;
+    shippingPrice: number;
+}
+
 export default function CreateInvoice() {
     const router = useRouter()
 
     const [tableVisible, setTableVisible] = useState<boolean>(false)
+
+    const [isVisible, setIsVisible] = useState<boolean>(false)
+    const [message, setMessage] = useState<string>("")
+    const [valid, setValid] = useState<boolean>(true)
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const [workOrders, setWorkOrders] = useState([])
     const [clients, setClients] = useState([])
     const [displayedWorkOrders, setDisplayedWorkOrders] = useState([])
 
     
-    const selectedWorkOrder: Record<string, number> = {}
+    let selectedWorkOrder: Record<string, number> = {}
     let count: number = 0
 
     useEffect(() => {
@@ -71,6 +83,50 @@ export default function CreateInvoice() {
 
         const formData = new FormData(event.currentTarget)
 
+        // Validate invoice based on user input
+        const invoice = {
+            invoiceNumber: "Nomor Invoice",
+            clientName: "Nama Klien",
+            packingPrice: "Biaya Packing",
+            shippingPrice: "Biaya Pengiriman",
+        }
+
+        let s: string = ""
+        let count: number = 0
+
+        for (const pair of formData.entries()) {
+            console.log(pair[0], pair[1])
+            if (pair[1] == "") {
+                count += 1
+
+                if (count > 1) {
+                    s += ", "
+                }
+
+                s += invoice[pair[0] as keyof InvoiceForm]
+            }
+        }
+
+        if (Object.keys(selectedWorkOrder).length == 0) {
+            if (count > 0) {
+                s += ", List SPK"
+            } else {
+                s += "List SPK"
+            }
+
+            count += 1
+        }
+
+        s += " tidak boleh kosong."
+
+        if (count > 0) {
+            setMessage(s)
+            setIsVisible(true)
+            setValid(false)
+            setIsLoading(false)
+            return
+        }
+
         formData.set("workOrders", JSON.stringify(selectedWorkOrder))
 
         try {
@@ -90,9 +146,11 @@ export default function CreateInvoice() {
     }
 
     const handleChangeDropdown = (event: any): void => {
+        selectedWorkOrder = {}
+
         const clientName = event.currentTarget.value
 
-        const result = workOrders.filter((workOrder: any) => workOrder.client.name == clientName && workOrder.availability == "AVAILABLE")
+        const result = workOrders.filter((workOrder: any) => workOrder.client.name == clientName && workOrder.availability == "AVAILABLE" && workOrder.status == "COMPLETED")
 
         setDisplayedWorkOrders(result)
         setTableVisible(true)
@@ -144,7 +202,7 @@ export default function CreateInvoice() {
                         <tr className="">
                             <td className="w-[30%]">Nama Klien</td>
                             <td>
-                                <select className="w-[350px] appearance-none px-3 py-2 bg-slate-200 rounded-lg mb-3" onChange={(e) => handleChangeDropdown(e)}>
+                                <select className="w-[350px] appearance-none px-3 py-2 bg-slate-200 rounded-lg mb-3" onChange={(e) => handleChangeDropdown(e)} name="clientName">
                                     <option value="">-</option>
                                     {
                                         clients.map((client: any) => (
@@ -152,6 +210,24 @@ export default function CreateInvoice() {
                                         ))
                                     }
                                 </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="w-[30%]">Biaya Packing</td>
+                            <td>
+                                <Input placeholder="150000" className="bg-slate-200 rounded-lg mb-3"
+                                startContent={<p className="mr-2">Rp. </p>} classNames={{
+                                    input: "focus:outline-none"
+                                }} name="packingPrice" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td className="w-[30%]">Biaya Pengiriman</td>
+                            <td>
+                                <Input placeholder="75000" className="bg-slate-200 rounded-lg mb-3"
+                                startContent={<p className="mr-2">Rp. </p>} classNames={{
+                                    input: "focus:outline-none"
+                                }} name="shippingPrice" />
                             </td>
                         </tr>
                     </tbody>
@@ -210,11 +286,22 @@ export default function CreateInvoice() {
                 {
                     tableVisible
                     ?
-                    <Button type="submit">Buat Baru</Button>
+                    <Button type="submit" className="bg-[gold] rounded-lg">Buat Baru</Button>
                     :
                     <></>
                 }
             </form>
+
+            {/* Toast */}
+            {
+                isVisible ?
+                <div className={`fixed bottom-5 right-5 ${valid ? 'bg-green-700' : 'bg-red-700'} text-white w-[30%] py-5 rounded-lg px-4 flex justify-between items-center z-20`}>
+                    <p>{message}</p>
+                    <Button onPress={() => {setIsVisible(false); setValid(true)}} className={`bg-white text-black rounded-lg ml-3 cursor-pointer px-4 ${valid ? 'text-green-700' : 'text-red-700'}`}>Tutup</Button>
+                </div>
+                :
+                <></>
+            }
         </>
     )
 }

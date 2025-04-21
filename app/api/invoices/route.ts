@@ -19,6 +19,8 @@ export async function POST(req: NextRequest) {
     const createInvoice = await prisma.invoice.create({
         data: {
             invoiceNumber: data.get("invoiceNumber"),
+            packingPrice: parseInt(data.get("packingPrice")),
+            shippingPrice: parseInt(data.get("shippingPrice"))
         }
     })
 

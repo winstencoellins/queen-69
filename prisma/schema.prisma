@@ -43,9 +43,7 @@ model WorkOrder {
   notes                   String?
   itemDescription         String
   quantity                Int
-  price                   Int
-  packingPrice            Int                         
-  shippingPrice           Int                         
+  price                   Int                        
 
   createdDate             DateTime                    @default(now())
   status                  WorkOrderStatus             @default(NOT_STARTED)
@@ -59,6 +57,9 @@ model WorkOrder {
 model Invoice {
   id                      String            @id @default(uuid())
   invoiceNumber           String            @unique
+  packingPrice            Int
+  shippingPrice           Int
+
 
   createdDate             DateTime          @default(now())
 

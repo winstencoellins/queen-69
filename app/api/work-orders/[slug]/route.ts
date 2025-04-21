@@ -77,8 +77,6 @@ export async function PUT(req: NextRequest) {
             itemDescription: data.get("itemDescription"),
             quantity: parseInt(data.get("quantity")),
             price: parseInt(data.get("price")),
-            shippingPrice: parseInt(data.get("shippingPrice")),
-            packingPrice: parseInt(data.get("packingPrice"))
         }
     })
 

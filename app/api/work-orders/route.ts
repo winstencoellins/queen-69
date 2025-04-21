@@ -63,8 +63,6 @@ export async function POST(req: NextRequest) {
             itemDescription: data.get("itemDescription"),
             quantity: parseInt(data.get("quantity")),
             price: parseInt(data.get("price")),
-            packingPrice: parseInt(data.get("packingPrice")),
-            shippingPrice: parseInt(data.get("shippingPrice"))
         }
     })
 
