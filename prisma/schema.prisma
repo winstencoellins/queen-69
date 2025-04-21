@@ -29,6 +29,7 @@ model Client {
   status        ClientStatus    @default(ACTIVE)
 
   workOrders    WorkOrder[]
+  invoices      Invoice[]
 }
 
 model WorkOrder {
@@ -43,13 +44,13 @@ model WorkOrder {
   notes                   String?
   itemDescription         String
   quantity                Int
-  price                   Int                        
+  price                   Int
 
   createdDate             DateTime                    @default(now())
   status                  WorkOrderStatus             @default(NOT_STARTED)
 
   invoice                 Invoice?                    @relation(fields: [invoiceNumber], references: [invoiceNumber])
-  invoiceNumber           String?                              
+  invoiceNumber           String?
 
   availability            WorkOrderInvoiceStatus      @default(AVAILABLE)
 }
@@ -65,9 +66,12 @@ model Invoice {
 
   createdBy               String?
 
-  workOrder               WorkOrder[]       
+  workOrder               WorkOrder[]
 
   status                  InvoiceStatus     @default(UNPAID)
+
+  client                  Client            @relation(fields: [clientId], references: [id])
+  clientId                String
 }
 
 enum ClientStatus {

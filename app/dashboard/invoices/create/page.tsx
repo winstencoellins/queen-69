@@ -31,7 +31,7 @@ export default function CreateInvoice() {
     const [clients, setClients] = useState([])
     const [displayedWorkOrders, setDisplayedWorkOrders] = useState([])
 
-    
+
     let selectedWorkOrder: Record<string, number> = {}
     let count: number = 0
 
@@ -39,7 +39,12 @@ export default function CreateInvoice() {
         fetchWorkOrders()
         fetchClients()
     }, [])
-    
+
+    /**
+     * Fetches all of the list of work orders
+     *
+     * @returns none
+     */
     const fetchWorkOrders = async (): Promise<void> => {
         try {
             const response = await fetch("/api/work-orders")
@@ -56,6 +61,12 @@ export default function CreateInvoice() {
         }
     }
 
+    /**
+     * Fetches all of the list of clients to be populated
+     * into the dropdown list
+     *
+     * @returns none
+     */
     const fetchClients = async (): Promise<void> => {
         try {
             const response = await fetch("/api/clients")
@@ -74,12 +85,26 @@ export default function CreateInvoice() {
         }
     }
 
+    /**
+     * Navigates to list of invoices when user clicks on it
+     *
+     * @returns none
+     */
     const handleClickBack = (): void => {
         router.push("/dashboard/invoices")
     }
-    
+
+    /**
+     * Handles the submission the newly created invoices
+     * by the user, and check the validation in the frontend.
+     *
+     * @param event
+     * @returns
+     */
     const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
+
+        setIsLoading(true)
 
         const formData = new FormData(event.currentTarget)
 
@@ -140,8 +165,20 @@ export default function CreateInvoice() {
             if (!response.ok) {
                 throw new Error("Something went wrong. Please submit again.")
             }
+
+            setMessage(data.message)
+            setIsVisible(true)
+
+            if (data.success) {
+                setValid(true)
+            } else {
+                setValid(false)
+            }
         } catch (error) {
             console.log(error)
+            setMessage("Gagal untuk mengirimkan data karena kendala internet. Silahkan coba lagi.")
+        } finally {
+            setIsLoading(false)
         }
     }
 
