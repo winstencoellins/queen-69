@@ -17,7 +17,26 @@ export async function GET(req: NextRequest) {
         }
     })
 
-    return NextResponse.json({ success: true, clientDetail }, { status: 200 })
+    const workOrders = await prisma.workOrder.findMany({
+        where: {
+            clientId: clientId
+        },
+        select: {
+            workOrderNumber: true,
+            worker: true,
+            itemDescription: true,
+            status: true,
+            id: true
+        }
+    })
+
+    const invoices = await prisma.invoice.findMany({
+        where: {
+            clientId: clientId
+        }
+    })
+
+    return NextResponse.json({ success: true, clientDetail, workOrders, invoices }, { status: 200 })
 }
 
 export async function PUT(req: NextRequest) {

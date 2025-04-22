@@ -6,6 +6,8 @@ import Link from "next/link"
 import building from "@/public/svgs/building.svg"
 import progress from "@/public/svgs/progress.svg"
 
+import { convertToDate } from "@/lib/utils"
+
 import { FormEvent, useEffect, useState } from "react"
 import clsx from "clsx"
 
@@ -28,6 +30,9 @@ export default function ClientDetail() {
     const [message, setMessage] = useState<string>('')
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [success, setSuccess] = useState<boolean>(true)
+
+    const [workOrders, setWorkOrders] = useState([])
+    const [invoices, setInvoices] = useState([])
 
     const [clientInfo, setClientInfo] = useState<clientInfo>({
         name: "",
@@ -141,6 +146,8 @@ export default function ClientDetail() {
 
             const data = await response.json()
 
+            console.log(data)
+
             if (data.success) {
                 setClientInfo({
                     name: data.clientDetail.name,
@@ -156,6 +163,8 @@ export default function ClientDetail() {
                     telephone: data.clientDetail.telephone,
                     status: data.clientDetail.status
                 })
+                setWorkOrders(data.workOrders)
+                setInvoices(data.invoices)
             }
         } catch (error) {
             console.log(error)
@@ -217,8 +226,8 @@ export default function ClientDetail() {
                                 <></>
                                 :
                                 <div className="flex">
-                                    <Button onPress={() => setEnableEdit(true)} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer mr-5">Edit Klien</Button>
-                                    <Button disabled={isLoading} onPress={handleDeactivate} className="bg-green-300 rounded-lg my-5 hover:cursor-pointer">{clientInfo.status == "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}</Button>
+                                    <Button onPress={() => setEnableEdit(true)} className="bg-[gold] rounded-lg my-5 hover:cursor-pointer mr-5">Edit Klien</Button>
+                                    <Button disabled={isLoading} onPress={handleDeactivate} className={clsx("rounded-lg hover:cursor-pointer border my-5", clientInfo.status == "INACTIVE" ? "border-green-500 text-green-500" : "border-red-500 text-red-500")}>{clientInfo.status == "ACTIVE" ? "Nonaktifkan" : "Aktifkan"}</Button>
                                 </div>
                             }
                         </div>
@@ -267,9 +276,9 @@ export default function ClientDetail() {
                         {
                             enableEdit
                             ?
-                            <div>
-                                <Button onPress={handleReset} className="hover:cursor-pointer">Kembali</Button>
-                                <Button disabled={isLoading} type="submit" className="hover:cursor-pointer">Simpan</Button>
+                            <div className="mt-10">
+                                <Button onPress={handleReset} className="hover:cursor-pointer border border-red-500 text-red-500 rounded-lg">Kembali</Button>
+                                <Button disabled={isLoading} type="submit" className="hover:cursor-pointer bg-[gold] rounded-lg ml-5">Simpan Data</Button>
                             </div>
                             :
                             <></>
@@ -290,7 +299,7 @@ export default function ClientDetail() {
 
                     {/* Table List SPK */}
                     <div className="bg-white px-5 py-5 rounded-lg mt-5">
-                        <h1 className="mb-5">List SPK</h1>
+                        <h1 className="mb-5">Daftar SPK Terbaru (5 daftar)</h1>
 
                         <table className="table-auto w-full">
                             <thead>
@@ -303,16 +312,20 @@ export default function ClientDetail() {
                                 </tr>
                             </thead>
                             {
-                                false
+                                workOrders.length > 0
                                 ?
                                 <tbody>
-                                    <tr className="text-sm">
-                                        <td className="py-3">01/01/01</td>
-                                        <td>Winsten Coellins</td>
-                                        <td>Lemari Ukuran 10x10x30</td>
-                                        <td><p className={clsx("px-2 py-1 text-orange-600 bg-orange-100 w-fit rounded-full text-xs")}>Sedang Diproses</p></td>
-                                        <td><Link href="">Lihat Detail</Link></td>
-                                    </tr>
+                                    {
+                                        workOrders.map((workOrder: any, index) => (
+                                            <tr className="text-sm" key={index}>
+                                                <td className="py-3">{workOrder.workOrderNumber}</td>
+                                                <td>{workOrder.worker}</td>
+                                                <td>{workOrder.itemDescription}</td>
+                                                <td><p className={clsx("px-2 py-1 w-fit rounded-full text-xs", workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : "bg-red-100 text-red-500")}>{workOrder.status == "COMPLETED" ? "Selesai" : workOrder.status == "IN_PROGRESS" ? "Sedang Diproses" : workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : "Dibatalkan"}</p></td>
+                                                <td><Link href={`/dashboard/work-orders/${workOrder.id}`} className="text-yellow-500 hover:underline">Lihat Detail</Link></td>
+                                            </tr>
+                                        ))
+                                    }
                                 </tbody>
                                 :
                                 <></>
@@ -320,53 +333,42 @@ export default function ClientDetail() {
                         </table>
 
                         {
-                            true
+                            workOrders.length == 0
                             ?
                             <div className="mt-3 text-sm">Tidak ada data yang tersedia ...</div>
                             :
                             <></>
                         }
-
-                        {
-                            true
-                            ?
-                            <></>
-                            :
-                            <div className="flex justify-between items-center mt-5">
-                                <p className="text-sm">Showing 0 to 10 from 10 records</p>
-                                <Pagination total={5} classNames={{
-                                    item: "px-3 bg-red-100 rounded-lg",
-                                    cursor: "px-3 bg-red-500 rounded-lg duration-200"
-                                }}/>
-                            </div>
-                        }
                     </div>
 
                     {/* Table List Invoice */}
                     <div className="bg-white px-5 py-5 rounded-lg mt-5">
-                        <h1 className="mb-5">List Invoice</h1>
+                        <h1 className="mb-5">Daftar Invoice</h1>
 
                         <table className="table-auto w-full">
                             <thead>
                                 <tr className="text-left border-b">
                                     <th className="pb-2"># Invoice</th>
                                     <th className="pb-2">Status</th>
-                                    <th className="pb-2">Deskripsi Barang</th>
-                                    <th className="pb-2">Harga</th>
+                                    <th className="pb-2">Dibuat Pada Tanggal</th>
                                     <th className="pb-2">Aksi</th>
                                 </tr>
                             </thead>
                             {
-                                false
+                                invoices.length > 0
                                 ?
                                 <tbody>
-                                    <tr className="text-sm">
-                                        <td className="py-3">01/01/01</td>
-                                        <td><p className={clsx("px-2 py-1 bg-green-100 w-fit text-green-600 rounded-full text-xs")}>Lunas</p></td>
-                                        <td>Lemari Ukuran 10x10x30</td>
-                                        <td>Rp. 3000000</td>
-                                        <td><Link href="">Lihat Detail</Link></td>
-                                    </tr>
+                                    {
+                                        invoices.map((invoice: any, index) => (
+                                            <tr className="text-sm" key={index}>
+                                                <td className="py-3">{invoice.invoiceNumber}</td>
+                                                <td><p className={clsx("px-2 py-1 w-fit rounded-full text-xs", invoice.status == "PAID" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{invoice.status == "PAID" ? "Lunas" : "Belum Lunas"}</p></td>
+                                                <td>{convertToDate(invoice.createdDate.split("T")[0])}</td>
+                                                <td><Link href={`/dashboard/invoices/${invoice.id}`} className="text-yellow-500 hover:underline">Lihat Detail</Link></td>
+                                            </tr>
+
+                                        ))
+                                    }
                                 </tbody>
                                 :
                                 <></>
@@ -374,26 +376,13 @@ export default function ClientDetail() {
                         </table>
 
                         {
-                            true
+                            invoices.length == 0
                             ?
                             <div className="mt-3 text-sm">Tidak ada data yang tersedia ...</div>
                             :
                             <></>
                         }
 
-                        {
-                            true
-                            ?
-                            <></>
-                            :
-                            <div className="flex justify-between items-center mt-5">
-                                <p className="text-sm">Showing 0 to 10 from 10 records</p>
-                                <Pagination total={5} classNames={{
-                                    item: "px-3 bg-red-100 rounded-lg",
-                                    cursor: "px-3 bg-red-500 rounded-lg duration-200"
-                                }}/>
-                            </div>
-                        }
                     </div>
                 </div>
             </div>

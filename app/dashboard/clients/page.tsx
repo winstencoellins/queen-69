@@ -183,7 +183,7 @@ export default function Client() {
     return (
         <>
             <div className=" px-5 py-4 rounded-lg flex flex-row items-center justify-between bg-white">
-                <h1 className="text-2xl">Clients</h1>
+                <h1 className="text-2xl">Klien</h1>
 
                 <div className="flex items-center">
                     {/* Dropdown */}
@@ -196,7 +196,7 @@ export default function Client() {
                         </select>
                     </div>
 
-                    <Button className="bg-green-200 rounded-lg ml-5" onPress={() => showForm ? setShowForm(false) : setShowForm(true)}>
+                    <Button className="bg-[gold] rounded-lg ml-5" onPress={() => showForm ? setShowForm(false) : setShowForm(true)}>
                         <Image src={add} alt="icon" width={20} height={20} />
                         {showForm ? 'Batal' : 'Tambah Klien'}
                     </Button>
@@ -246,7 +246,7 @@ export default function Client() {
             {/* Clients table */}
             <div className="bg-white mt-5 px-5 py-5 rounded-lg">
                 <div className="flex flex-row items-center justify-between">
-                    <h1 className="text-lg font-bold">Lists</h1>
+                    <h1 className="text-lg font-bold">Daftar</h1>
 
                     <Input
                         startContent={
@@ -288,7 +288,7 @@ export default function Client() {
                                     <td className="w-[15%]">{client.city}</td>
                                     <td className="w-[25%]">{client.address}</td>
                                     <td><span className={clsx("px-5 py-1 rounded-full text-sm", client.status == 'ACTIVE' ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{client.status == 'ACTIVE' ? 'Aktif' : 'Tidak Aktif'}</span></td>
-                                    <td><Link href={`/dashboard/clients/${client.id}`}>Lihat Detail</Link></td>
+                                    <td><Link href={`/dashboard/clients/${client.id}`} className="text-yellow-500 hover:underline duration-150">Lihat Rincian</Link></td>
                                 </tr>
                             ))
                         }
@@ -309,8 +309,8 @@ export default function Client() {
                 <p className="text-sm">{records} records</p>
 
                 <Pagination total={page} classNames={{
-                    item: "bg-green-200 rounded-lg px-3",
-                    cursor: "px-3 bg-green-500 rounded-lg duration-200"
+                    item: "bg-[gold] rounded-lg px-3",
+                    cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
                 }} onChange={(page: number) => handleChange(page)}/>
             </div>
 
