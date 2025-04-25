@@ -20,6 +20,20 @@ model User {
   password      String
 }
 
+model Employee {
+  id           String               @id @default(uuid())
+  name         String
+  role         String
+  birthday     DateTime?
+  phone        String
+
+  gender       Gender               @default(MALE)
+
+  status       EmployeeStatus       @default(ACTIVE)
+
+  workOrder    WorkOrder[]
+}
+
 model Client {
   id            String          @id @default(uuid())
   name          String          @unique
@@ -36,9 +50,11 @@ model WorkOrder {
   id                      String                      @id @default(uuid())
   workOrderNumber         String                      @unique
   estimatedFinishDate     DateTime
-  worker                  String
 
-  client                  Client                      @relation(fields: [clientId], references: [id])
+  workerId                String
+  worker                  Employee?                    @relation(fields: [workerId], references: [id])
+
+  client                  Client                       @relation(fields: [clientId], references: [id])
   clientId                String
 
   notes                   String?
@@ -94,4 +110,14 @@ enum WorkOrderInvoiceStatus {
 enum InvoiceStatus {
   PAID
   UNPAID
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Gender {
+  MALE
+  FEMALE
 }

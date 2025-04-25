@@ -196,7 +196,7 @@ export default function Client() {
                         </select>
                     </div>
 
-                    <Button className="bg-[gold] rounded-lg ml-5" onPress={() => showForm ? setShowForm(false) : setShowForm(true)}>
+                    <Button className="bg-[gold] rounded-lg ml-5 hover:cursor-pointer" onPress={() => showForm ? setShowForm(false) : setShowForm(true)}>
                         <Image src={add} alt="icon" width={20} height={20} />
                         {showForm ? 'Batal' : 'Tambah Klien'}
                     </Button>
@@ -237,7 +237,7 @@ export default function Client() {
                         }}/>
                     </div>
 
-                    <Button type="submit" className="bg-yellow-500 rounded-lg mt-3 text-white hover:cursor-pointer">Buat Baru</Button>
+                    <Button type="submit" className="bg-[gold] rounded-lg mt-3 text-white hover:cursor-pointer">Buat Baru</Button>
                 </form>
                 :
                 <></>
@@ -309,7 +309,7 @@ export default function Client() {
                 <p className="text-sm">{records} records</p>
 
                 <Pagination total={page} classNames={{
-                    item: "bg-[gold] rounded-lg px-3",
+                    item: "bg-yellow-200 rounded-lg px-3",
                     cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
                 }} onChange={(page: number) => handleChange(page)}/>
             </div>

@@ -71,7 +71,7 @@ export async function PUT(req: NextRequest) {
         data: {
             workOrderNumber: data.get("workOrderNumber"),
             estimatedFinishDate: data.get("estimatedFinishDate") + "T00:00:00.000Z",
-            worker: data.get("worker"),
+            workerId: data.get("workerId"),
             clientId: clientId?.id,
             notes: data.get("notes"),
             itemDescription: data.get("itemDescription"),

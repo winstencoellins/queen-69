@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from "@heroui/react"
+import { Button, Pagination } from "@heroui/react"
 
 import { useEffect, useState } from "react"
 
@@ -24,21 +24,32 @@ export default function WorkOrders() {
     const [message, setMessage] = useState<string>("")
 
     const [workOrders, setWorkOrders] = useState([])
+    const [displayedWorkOrders, setDisplayedWorkOrders] = useState([])
+
+    const page = Math.ceil(workOrders.length / 8)
 
     useEffect(() => {
         fetchWorkOrder()
     }, [])
 
-    /**
-     * Handles the changes of the status
-     * depending on the user input
-     *
-     * @returns none
-     */
-    const handleChange = () => {
-        // const btn = document.getElementById("btn")
-        // console.log(btn?.innerHTML)
-        // active ? setActive(false) : setActive(true)
+    const handleChange = (pageNumber: number = 1) => {
+        const btn: any = document.getElementById("btn")?.addEventListener('onclick', function (event: any) {
+            return event.target.name
+        })
+
+        console.log(btn)
+        console.log(pageNumber)
+        // const temp = workOrders
+
+        // if (event.target.name == "") {
+        //     setActive(true)
+        //     setDisplayedWorkOrders(workOrders)
+        //     return
+        // }
+
+        // const result = temp.filter((workOrder: any) => workOrder.status == event.target.name)
+        // setDisplayedWorkOrders(result)
+        // setActive(false)
     }
 
     /**
@@ -60,6 +71,7 @@ export default function WorkOrders() {
             const data = await response.json()
 
             setWorkOrders(data.workOrders)
+            setDisplayedWorkOrders(data.workOrders)
         } catch (error) {
             setMessage("Gagal memuat data. Silahkan muat ulang halaman ini.")
             setValid(false)
@@ -67,8 +79,6 @@ export default function WorkOrders() {
         } finally {
             setIsLoading(false)
         }
-
-
     }
 
     /**
@@ -96,17 +106,17 @@ export default function WorkOrders() {
             </div>
 
             <div className="bg-white mt-5 px-5 py-5 rounded-lg shadow-lg">
-                <div>
-                    <Button className={active ? `border-3 border-b-yellow-500 border-l-0 border-t-0 border-r-0 focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none` : `border-none`} onPress={handleChange} id="btn">Semua</Button>
-                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={handleChange} id="btn">Belum Dimulai</Button>
-                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={handleChange} id="btn">Sedang Diproses</Button>
-                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={handleChange} id="btn">Selesai</Button>
+                <div id="btn">
+                    <Button className={active ? `border-3 border-t-0 border-r-0 border-l-0 border-b-yellow-500 focus:outline-none` : ""} onPress={() => handleChange()} name="">Semua</Button>
+                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={() => handleChange()} name="NOT_STARTED">Belum Dimulai</Button>
+                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={() => handleChange()} name="IN_PROGRESS">Sedang Diproses</Button>
+                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={() => handleChange()} name="COMPLETED">Selesai</Button>
                 </div>
 
                 <hr className="pb-5"/>
 
                 <table className="w-full text-left">
-                    <thead className="pt-5">
+                    <thead className="pt-5 text-slate-400">
                         <tr>
                             <th># SPK</th>
                             <th>Klien</th>
@@ -118,7 +128,7 @@ export default function WorkOrders() {
                     </thead>
                     <tbody>
                         {
-                            workOrders.map((workOrder: any) => (
+                            displayedWorkOrders.map((workOrder: any) => (
                                 <tr key={workOrder.workOrderNumber} className="">
                                     <td className="py-5">{workOrder.workOrderNumber}</td>
                                     <td className="">
@@ -135,7 +145,26 @@ export default function WorkOrders() {
                         }
                     </tbody>
                 </table>
+
+                {
+                    displayedWorkOrders.length == 0
+                    ?
+                    <p className="mt-5">Tidak ada data yang tersedia ...</p>
+                    :
+                    <></>
+                }
+
+                {/* Pagination */}
+                <div className="flex justify-between items-center mt-5">
+                    <p className="text-sm">{displayedWorkOrders.length} records</p>
+
+                    <Pagination total={page} classNames={{
+                        item: "bg-yellow-200 rounded-lg px-3",
+                        cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
+                    }} onChange={(page: number) => handleChange(page)}/>
+                </div>
             </div>
+
 
             {/* Toast */}
             {

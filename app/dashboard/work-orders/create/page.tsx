@@ -37,10 +37,36 @@ export default function WorkOrderCreate() {
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const [clients, setClients] = useState<clientInfo[]>([])
+    const [employees, setEmployees] = useState([])
 
     useEffect(() => {
         fetchClients()
+        fetchEmployees()
     }, [])
+
+    /**
+     * Fetches the list of all employees that's
+     * available
+     * 
+     * @returns none
+     */
+    const fetchEmployees = async () => {
+        try {
+            const response = await fetch(`/api/employees`)
+            
+            const data = await response.json()
+
+            if (!response.ok) {
+                throw new Error("Something went wrong. Please try again.")
+            }
+
+            console.log(data.employees)
+
+            setEmployees(data.employees)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     /**
      * Fetches all the client name to populate the select
@@ -195,9 +221,14 @@ export default function WorkOrderCreate() {
                         <tr>
                             <td>Pekerja</td>
                             <td>
-                                <Input placeholder="John Doe" className="bg-slate-200 rounded-lg mb-3" classNames={{
-                                    input: "focus:outline-none"
-                                }} name="worker" />
+                                <select className="w-[350px] appearance-none px-3 py-2 bg-slate-200 rounded-lg mb-3" name="workerId">
+                                    <option value="">-</option>
+                                    {
+                                        employees.map((employee: any) => (
+                                            <option key={employee.id} value={employee.id}>{employee.name}</option>
+                                        ))
+                                    }
+                                </select>
                             </td>
                         </tr>
                         <tr>
