@@ -25,6 +25,7 @@ export default function WorkOrders() {
 
     const [workOrders, setWorkOrders] = useState([])
     const [displayedWorkOrders, setDisplayedWorkOrders] = useState([])
+    
 
     const page = Math.ceil(workOrders.length / 8)
 
@@ -37,8 +38,6 @@ export default function WorkOrders() {
             return event.target.name
         })
 
-        console.log(btn)
-        console.log(pageNumber)
         // const temp = workOrders
 
         // if (event.target.name == "") {
