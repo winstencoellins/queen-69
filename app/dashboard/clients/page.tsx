@@ -306,12 +306,12 @@ export default function Client() {
 
             {/* Pagination */}
             <div className="flex justify-between items-center mt-5">
-                <p className="text-sm">{records} records</p>
-
                 <Pagination total={page} classNames={{
                     item: "bg-yellow-200 rounded-lg px-3",
                     cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
                 }} onChange={(page: number) => handleChange(page)}/>
+
+                <p className="text-sm">{records} records</p>
             </div>
 
             {/* Toast */}

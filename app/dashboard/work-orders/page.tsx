@@ -13,6 +13,7 @@ import add from "@/public/svgs/add.svg"
 import { useRouter } from "next/navigation"
 
 import { convertToDate } from "@/lib/utils"
+import ClientDetail from "../clients/[slug]/page"
 
 export default function WorkOrders() {
     const router = useRouter()
@@ -24,31 +25,82 @@ export default function WorkOrders() {
     const [message, setMessage] = useState<string>("")
 
     const [workOrders, setWorkOrders] = useState([])
-    const [displayedWorkOrders, setDisplayedWorkOrders] = useState([])
-    
+    const [displayedWorkOrders, setDisplayedWorkOrders] = useState<any[]>([])
+    const [clients, setClients] = useState([])
 
-    const page = Math.ceil(workOrders.length / 8)
+    const maxRecords = 8
+
+    const [status, setStatus] = useState<string>("")
+    const [clientName, setClientName] = useState<string>("")
+    const [page, setPage] = useState(0)
+    const [records, setRecords] = useState<number>(0)
 
     useEffect(() => {
         fetchWorkOrder()
+        fetchClients()
     }, [])
 
-    const handleChange = (pageNumber: number = 1) => {
-        const btn: any = document.getElementById("btn")?.addEventListener('onclick', function (event: any) {
-            return event.target.name
-        })
+    /**
+     * Handles the UI display to follow
+     * the output status clicked by the user.
+     *
+     * @param event
+     */
+    const handleStatusChange = (event: any) => {
+        setPage(0)
 
-        // const temp = workOrders
+        let result: any[] = []
+        const dropdown: any = document.getElementById("clientDropdown")
 
-        // if (event.target.name == "") {
-        //     setActive(true)
-        //     setDisplayedWorkOrders(workOrders)
-        //     return
-        // }
+        if (event.target.name == "") {
+            if (dropdown.value != "") {
+                result = workOrders.filter((workOrder: any) => workOrder.client.name == dropdown.value)
+            } else {
+                result = workOrders
+            }
+            setActive(true)
+        } else {
+            if (dropdown.value != "") {
+                result = workOrders.filter((workOrder: any) => workOrder.status == event.target.name && workOrder.client.name == dropdown.value)
+            } else {
+                result = workOrders.filter((workOrder: any) => workOrder.status == event.target.name)
+            }
 
-        // const result = temp.filter((workOrder: any) => workOrder.status == event.target.name)
-        // setDisplayedWorkOrders(result)
-        // setActive(false)
+            setActive(false)
+        }
+
+
+        setRecords(result.length)
+        setClientName(dropdown.value)
+        setDisplayedWorkOrders(result.slice(0, maxRecords))
+        setStatus(event.target.name)
+        setPage(Math.ceil(result.length / maxRecords))
+    }
+
+    /**
+     * This function is used to handle the pagination
+     * when the pagination is clicked by the user.
+     *
+     * @param pageNumber
+     */
+    const handlePaginationChange = (pageNumber: number) => {
+        let result: any[] = []
+
+        if (status == "") {
+            if (clientName != "") {
+                result = workOrders.filter((workOrder: any) => workOrder.client.name == clientName)
+            } else {
+                result = workOrders
+            }
+        } else {
+            if (clientName != "") {
+                result = workOrders.filter((workOrder: any) => workOrder.status == status && workOrder.client.name == clientName)
+            } else {
+                result = workOrders.filter((workOrder: any) => workOrder.status == status)
+            }
+        }
+
+        setDisplayedWorkOrders(result.slice(((pageNumber - 1) * maxRecords), maxRecords * pageNumber))
     }
 
     /**
@@ -70,13 +122,33 @@ export default function WorkOrders() {
             const data = await response.json()
 
             setWorkOrders(data.workOrders)
-            setDisplayedWorkOrders(data.workOrders)
+            setDisplayedWorkOrders(data.workOrders.slice(0, maxRecords))
+            setRecords(data.workOrders.length)
+            setPage(Math.ceil(data.workOrders.length / maxRecords))
         } catch (error) {
             setMessage("Gagal memuat data. Silahkan muat ulang halaman ini.")
             setValid(false)
             setIsVisible(true)
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    /**
+     * Fetches all of the clients to be populated
+     * in the filter client dropdown
+     *
+     * @returns none
+     */
+    const fetchClients = async () => {
+        try {
+            const response = await fetch("/api/clients")
+
+            const data = await response.json()
+
+            setClients(data.clients)
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -105,11 +177,25 @@ export default function WorkOrders() {
             </div>
 
             <div className="bg-white mt-5 px-5 py-5 rounded-lg shadow-lg">
+                {/* Filter Client */}
+                <div className="flex items-center mb-5">
+                    <h3 className="mr-2">Filter Klien</h3>
+
+                    <select className="bg-slate-200 px-10 py-1.5 rounded-lg appearance-none text-center hover:cursor-pointer text-left" id="clientDropdown" onChange={handleStatusChange}>
+                        <option value="">-</option>
+                        {
+                            clients.map((client: any, index) => (
+                                <option key={index} value={client.name}>{client.name}</option>
+                            ))
+                        }
+                    </select>
+                </div>
+
                 <div id="btn">
-                    <Button className={active ? `border-3 border-t-0 border-r-0 border-l-0 border-b-yellow-500 focus:outline-none` : ""} onPress={() => handleChange()} name="">Semua</Button>
-                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={() => handleChange()} name="NOT_STARTED">Belum Dimulai</Button>
-                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={() => handleChange()} name="IN_PROGRESS">Sedang Diproses</Button>
-                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={() => handleChange()} name="COMPLETED">Selesai</Button>
+                    <Button className={active ? `border-3 border-t-0 border-r-0 border-l-0 border-b-yellow-500 focus:outline-none` : ""} onPress={(e) => handleStatusChange(e)} name="">Semua</Button>
+                    <Button className={status == "NOT_STARTED" ? "border-3 border-l-0 border-t-0 border-r-0 border-b-yellow-500 outline-none" : ""} onPress={(e) => handleStatusChange(e)} name="NOT_STARTED">Belum Dimulai</Button>
+                <Button className={status == "IN_PROGRESS" ? "border-3 border-l-0 border-t-0 border-r-0 border-b-yellow-500 outline-none" : ""} onPress={(e) => handleStatusChange(e)} name="IN_PROGRESS">Sedang Diproses</Button>
+                    <Button className="focus:border-3 focus:border-l-0 focus:border-t-0 focus:border-r-0 focus:border-b-yellow-500 focus:outline-none" onPress={(e) => handleStatusChange(e)} name="COMPLETED">Selesai</Button>
                 </div>
 
                 <hr className="pb-5"/>
@@ -148,19 +234,21 @@ export default function WorkOrders() {
                 {
                     displayedWorkOrders.length == 0
                     ?
-                    <p className="mt-5">Tidak ada data yang tersedia ...</p>
+                    <p className="mt-5">{isLoading ? "Sedang memuat data..." : "Tidak ada data yang tersedia..."}</p>
                     :
                     <></>
                 }
 
                 {/* Pagination */}
                 <div className="flex justify-between items-center mt-5">
-                    <p className="text-sm">{displayedWorkOrders.length} records</p>
+                    <Pagination total={page} initialPage={1} classNames={{
+                            item: "bg-yellow-200 rounded-lg px-3",
+                            cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
+                        }}
+                        onChange={(page: number) => handlePaginationChange(page)}
+                    />
 
-                    <Pagination total={page} classNames={{
-                        item: "bg-yellow-200 rounded-lg px-3",
-                        cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
-                    }} onChange={(page: number) => handleChange(page)}/>
+                    <p className="text-sm">{records} records</p>
                 </div>
             </div>
 
