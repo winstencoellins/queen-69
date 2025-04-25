@@ -34,7 +34,7 @@ export default function Employees() {
     }, [])
 
     const handleShowForm = (): void => {
-        showForm ? setShowForm(false) : setShowForm(true)
+        // showForm ? setShowForm(false) : setShowForm(true)
     }
 
     const fetchEmployee = async () => {
@@ -50,7 +50,7 @@ export default function Employees() {
             setEmployees(data.employees)
         } catch (error) {
             console.log(error)
-            setMessage("Gagal untuk memuat data karena koneksi internet. Silahkan coba lagi.")  
+            setMessage("Gagal untuk memuat data karena koneksi internet. Silahkan coba lagi.")
             setValid(false)
             setIsVisible(true)
         }
@@ -172,11 +172,11 @@ export default function Employees() {
                     </div>
                     <div className="my-2">
                         <label className="">No. Tel</label>
-                        <Input name='tel' type="number" className="bg-slate-200 rounded-lg mt-2" 
-                            startContent={<p className="mr-2">+62 </p>} 
+                        <Input name='tel' type="number" className="bg-slate-200 rounded-lg mt-2"
+                            startContent={<p className="mr-2">+62 </p>}
                             placeholder="8115342667" classNames={{
                                 input: "focus:outline-none",
-                            }} 
+                            }}
                         />
                     </div>
 
@@ -187,8 +187,8 @@ export default function Employees() {
             }
 
             <div className="mt-10">
-                <Input 
-                    startContent={<Image src={search} alt='icon' width={20} height={20} className="mr-2" />} 
+                <Input
+                    startContent={<Image src={search} alt='icon' width={20} height={20} className="mr-2" />}
                     classNames={{
                                 input: "focus:outline-none"
                             }}
@@ -209,7 +209,7 @@ export default function Employees() {
                                 </div>
 
                                 <hr className="my-2"/>
-                                
+
                                 <div className="flex my-1">
                                     <Image src={phone} alt="icon" width={16} height={16} />
                                     <p className="ml-2"> +62 {employee.phone}</p>
