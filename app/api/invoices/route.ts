@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: false, message: "Nomor Invoice ini telah tersedia. Silahkan gunakan nomor invoice yang lain." }, { status: 409 })
     }
 
-    const clientId = await prisma.client.findUnique({
+    const clientId: any = await prisma.client.findUnique({
         where: {
             name: data.get("clientName")
         },
