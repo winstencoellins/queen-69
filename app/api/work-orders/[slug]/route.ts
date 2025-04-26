@@ -16,6 +16,11 @@ export async function GET(req: NextRequest) {
                     address: true,
                     telephone: true
                 }
+            },
+            worker: {
+                select: {
+                    name: true
+                }
             }
         }
     })

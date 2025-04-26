@@ -224,7 +224,7 @@ export default function WorkOrders() {
                                     <td><p>{workOrder.itemDescription} <br /><span className="text-xs">{workOrder.notes}</span></p></td>
                                     <td>{convertToDate(workOrder.estimatedFinishDate.split("T")[0])}</td>
                                     <td><p className={clsx("px-5 py-1 w-fit text-sm rounded-full", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Sedang Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p></td>
-                                    <td><Link href={`/dashboard/work-orders/${workOrder.id}`}>Lihat Detail</Link></td>
+                                    <td><Link href={`/dashboard/work-orders/${workOrder.id}`} className="text-yellow-500 hover:underline">Lihat Rincian</Link></td>
                                 </tr>
                             ))
                         }
@@ -239,17 +239,18 @@ export default function WorkOrders() {
                     <></>
                 }
 
-                {/* Pagination */}
-                <div className="flex justify-between items-center mt-5">
-                    <Pagination total={page} initialPage={1} classNames={{
-                            item: "bg-yellow-200 rounded-lg px-3",
-                            cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
-                        }}
-                        onChange={(page: number) => handlePaginationChange(page)}
-                    />
+            </div>
+            
+            {/* Pagination */}
+            <div className="flex justify-between items-center mt-5">
+                <Pagination total={page} initialPage={1} classNames={{
+                        item: "bg-yellow-200 rounded-lg px-3",
+                        cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
+                    }}
+                    onChange={(page: number) => handlePaginationChange(page)}
+                />
 
-                    <p className="text-sm">{records} records</p>
-                </div>
+                <p className="text-sm">{records} records</p>
             </div>
 
 

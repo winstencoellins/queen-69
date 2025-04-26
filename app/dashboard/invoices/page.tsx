@@ -29,15 +29,35 @@ export default function Invoices() {
     const [message, setMessage] = useState<string>("")
     const [valid, setValid] = useState<boolean>(true)
     const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [isVisible, setIsVisible] = useState<boolean>(false)
 
     const [invoices, setInvoices] = useState<Invoice[]>([])
+    const [displayedInvoice, setDisplayedInvoice] = useState<Invoice[]>([])
 
     useEffect(() => {
         fetchInvoices()
     }, [])
 
+    /**
+     * 
+     */
     const handleChange = () => {
+        const dropdown: any = document.getElementById("dropdown")
+        const search: any = document.getElementById("search")
+        let result = []
 
+        console.log(search.value, dropdown.value)
+
+        if (dropdown.value == "") {
+            result = invoices.filter((invoice: any) => invoice.invoiceNumber.includes(search.value))
+            setDisplayedInvoice(result)
+
+            return
+        }
+
+        result = invoices.filter((invoice: any) => invoice.status == dropdown.value && invoice.invoiceNumber.includes(search.value))
+
+        setDisplayedInvoice(result)
     }
 
     /**
@@ -58,10 +78,12 @@ export default function Invoices() {
             }
 
             setInvoices(data.invoices)
+            setDisplayedInvoice(data.invoices)
         } catch (error) {
             console.log(error)
             setMessage("Gagal untuk memuat data dikarenakan koneksi internet. Silahkan coba lagi.")
             setValid(false)
+            setIsVisible(true)
         } finally {
             setIsLoading(false)
         }
@@ -87,9 +109,9 @@ export default function Invoices() {
                     <div className="flex items-center">
                         <p className="mr-2">Filter Status</p>
                         <select id="dropdown" onChange={() => handleChange()} className="bg-slate-200 px-10 py-1.5 rounded-lg appearance-none text-center hover:cursor-pointer">
-                            <option value="all">Semua</option>
-                            <option value="active">Lunas</option>
-                            <option value="inactive">Belum Lunas</option>
+                            <option value="">Semua</option>
+                            <option value="PAID">Lunas</option>
+                            <option value="UNPAID">Belum Lunas</option>
                         </select>
                     </div>
 
@@ -102,7 +124,7 @@ export default function Invoices() {
 
             <div className="bg-white mt-5 px-5 py-5 rounded-lg">
                 <div className="flex flex-row items-center justify-between">
-                    <h1 className="text-lg font-bold">Lists</h1>
+                    <h1 className="text-lg font-bold">Daftar</h1>
 
                     <Input
                         startContent={
@@ -133,7 +155,11 @@ export default function Invoices() {
                     </thead>
                     <tbody>
                         {
-                            invoices.map((invoice, index) => (
+                            displayedInvoice.length == 0
+                            ?
+                            <></>
+                            :
+                            displayedInvoice.map((invoice, index) => (
                                 <tr key={index}>
                                     <td className="w-[25%] py-2">
                                         {invoice.invoiceNumber}
@@ -141,12 +167,33 @@ export default function Invoices() {
                                     <td className="w-[15%]">{convertToDate(invoice.createdDate.split("T")[0])}</td>
                                     <td className="w-[25%]">{invoice.createdBy == null ? "-" : invoice.createdBy}</td>
                                     <td><span className={clsx("px-5 py-1 w-fit rounded-full text-sm", invoice.status == "UNPAID" ? "bg-red-100 text-red-500" : "bg-green-100 text-green-500")}>{invoice.status == "PAID" ? 'Lunas' : 'Belum Lunas'}</span></td>
-                                    <td><Link href={`/dashboard/invoices/${invoice.id}`}>Lihat Detail</Link></td>
+                                    <td><Link href={`/dashboard/invoices/${invoice.id}`} className="text-yellow-500 hover:underline">Lihat Detail</Link></td>
                                 </tr>
                             ))
                         }
                     </tbody>
                 </table>
+
+                <div>
+                    {
+                        displayedInvoice.length == 0
+                        ?
+                        <p>{ isLoading ? "Sedang memuat data..." :  "Tidak ada data yang tersedia ..."}</p>
+                        :
+                        <></>
+                    }
+                </div>
+
+                {/* Toast */}
+                {
+                    isVisible ?
+                    <div className={`fixed bottom-5 right-5 ${valid ? 'bg-green-700' : 'bg-red-700'} text-white w-[30%] py-5 rounded-lg px-4 flex justify-between items-center z-20`}>
+                        <p>{message}</p>
+                        <Button onPress={() => {setIsVisible(false); setValid(true)}} className={`bg-white text-black rounded-lg ml-3 cursor-pointer px-4 ${valid ? 'text-green-700' : 'text-red-700'}`}>Tutup</Button>
+                    </div>
+                    :
+                    <></>
+                }
             </div>
         </>
     )

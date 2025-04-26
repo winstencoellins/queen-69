@@ -164,7 +164,7 @@ export default function InvoiceDetail() {
                 <div className="bg-white w-[80%] mr-5 rounded-lg shadow-lg px-5 py-5">
                     <div>
                         <div className="flex text-xl items-center justify-between">
-                            <h1 className="mr-5">Invoice ID: #{invoiceDetail.invoiceNumber}</h1>
+                            <h1 className="mr-5 font-semibold">Invoice ID: #{invoiceDetail.invoiceNumber}</h1>
                             <p className={clsx("text-sm rounded-full px-5 py-1", invoiceDetail.status == "UNPAID" ? "bg-red-100 text-red-500" : "bg-green-100 text-green-500")}>{invoiceDetail.status == "UNPAID" ? "Belum Lunas" : "Lunas"}</p>
                         </div>
 
@@ -228,7 +228,7 @@ export default function InvoiceDetail() {
                             <></>
                             :
                             <div className="flex justify-end">
-                                <Button className="bg-[gold] rounded-lg mt-5" onPress={handleClickDetail}>
+                                <Button className="bg-[gold] rounded-lg mt-5 hover:cursor-pointer" onPress={handleClickDetail}>
                                     <Image src={edit} alt="icon" width={20} height={20} />
                                     Edit Invoice
                                 </Button>

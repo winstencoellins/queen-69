@@ -24,6 +24,7 @@ export default function EditInvoice() {
     const [isVisible, setIsVisible] = useState<boolean>(false)
     const [valid, setValid] = useState<boolean>(false)
     const [message, setMessage] = useState<string>("")
+    const [isLoading, setIsLoading] = useState<boolean>(false)
 
     const [workOrders, setWorkOrders] = useState([])
     const [invoiceWorkOrder, setInvoiceWorkOrder] = useState([])
@@ -108,6 +109,8 @@ export default function EditInvoice() {
      * @returns none
      */
     const fetchInvoiceDetail = async (): Promise<void> => {
+        setIsLoading(true)
+
         try {
             const response = await fetch(`/api/invoices/${path.split("/")[3]}`)
 
@@ -119,6 +122,8 @@ export default function EditInvoice() {
 
             if (data.invoice.status == "PAID") {
                 router.push(`/dashboard/invoices/${path.split("/")[3]}`)
+
+                return
             }
  
             setInvoiceWorkOrder(data.invoice.workOrder)
@@ -134,6 +139,8 @@ export default function EditInvoice() {
             setIsVisible(true)
             setValid(false)
             setMessage("Gagal untuk memuat data karena koneksi internet. Silahkan coba lagi.")
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -175,6 +182,7 @@ export default function EditInvoice() {
         formData.set("removeWorkOrder", JSON.stringify(removeWorkOrder))
         formData.set("addWorkOrder", JSON.stringify(addWorkOrder))
         formData.set("id", path.split("/")[3])
+        formData.set("status", "")
 
         try {
             const response = await fetch(`/api/invoices/${path.split("/")[3]}`, {
@@ -229,7 +237,7 @@ export default function EditInvoice() {
                         <tr>
                             <td className="w-[30%]">Nomor Invoice</td>
                             <td>
-                                <Input placeholder="01/01/25" className="bg-slate-200 rounded-lg mb-3 mt-3 w-[350px]" classNames={{
+                                <Input placeholder="01/01/25" className="bg-slate-200 rounded-lg mb-2.5 mt-3 w-[350px]" classNames={{
                                     input: "focus:outline-none"
                                 }} name="invoiceNumber" value={invoice.invoiceNumber}  onChange={handleChange}/>
                             </td>
@@ -237,7 +245,7 @@ export default function EditInvoice() {
                         <tr className="">
                             <td className="w-[30%]">Nama Klien</td>
                             <td>
-                                <Input placeholder="01/01/25" className="bg-slate-200 rounded-lg mb-3 mt-3 w-[350px]" classNames={{
+                                <Input placeholder="01/01/25" className="bg-slate-200 rounded-lg mb-3 w-[350px]" classNames={{
                                     input: "focus:outline-none"
                                 }} name="clientName" value={invoice.name} disabled />
                             </td>
@@ -313,7 +321,11 @@ export default function EditInvoice() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {
+                                {   
+                                    workOrders.length == 0
+                                    ?
+                                    <></>
+                                    :
                                     workOrders.map((item: any, index) => (
                                         <tr key={index}>
                                             <td className="py-2"><input type="checkbox" value={item.id} onChange={(e) => handleAddSelect(e)}/></td>
@@ -326,6 +338,14 @@ export default function EditInvoice() {
                                 }
                             </tbody>
                         </table>
+
+                        {
+                            workOrders.length == 0
+                            ?
+                            <p>{ isLoading ? "Sedang memuat data..." : "Tidak ada data yang tersedia..."}</p>
+                            :
+                            <></>
+                        }
                     </div>
                 </div>
 

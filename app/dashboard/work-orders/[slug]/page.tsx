@@ -26,13 +26,17 @@ interface WorkOrder {
     workOrderNumber: string;
     estimatedFinishDate: string;
     createdDate: string;
-    worker: string;
+    worker: Employee;
     notes: string;
     itemDescription: string;
     quantity: string;
     price: string;
     status: string;
-    client: Client
+    client: Client;
+}
+
+interface Employee {
+    name: string;
 }
 
 interface Client {
@@ -56,7 +60,7 @@ export default function WorkOrderDetail() {
         id: "",
         workOrderNumber: "",
         estimatedFinishDate: "",
-        worker: "",
+        worker: { name: "" },
         notes: "",
         itemDescription: "",
         quantity: "",
@@ -113,6 +117,9 @@ export default function WorkOrderDetail() {
             }
         } catch (error) {
             console.log(error)
+            setMessage("Gagal untuk mengirimkan data dikarenakan kendala internet. Silahkan coba lagi.")
+            setIsVisible(true)
+            setValid(false)
         } finally {
             setIsLoading(false)
         }
@@ -127,8 +134,6 @@ export default function WorkOrderDetail() {
             if (!response.ok) {
                 throw new Error("Failed to fetch data. Please try again.")
             }
-
-            console.log(data.workOrder)
 
             setWorkOrder(data.workOrder)
         } catch (error) {
@@ -154,16 +159,16 @@ export default function WorkOrderDetail() {
             <div>
                 <div className="grid grid-cols-3 gap-x-3 mt-5">
                     <div className="bg-white rounded-lg shadow-lg px-5 py-3">
-                        <h3 className="text-slate-500 font-semibold">DIBUAT PADA:</h3>
-                        <p className="text-lg">{convertToDate(workOrder.createdDate.split("T")[0])}</p>
+                        <h3 className="text-slate-500 font-semibold">SPK DIBUAT PADA TANGGAL:</h3>
+                        <p className="text-base">{convertToDate(workOrder.createdDate.split("T")[0])}</p>
                     </div>
                     <div className="bg-white rounded-lg shadow-lg border-l-0 border-r-0 px-5 py-3">
                         <h3 className="text-slate-500 font-semibold">PERKIRAAN TANGGAL SELESAI:</h3>
-                        <p className="text-lg">{convertToDate(workOrder.estimatedFinishDate.split("T")[0])}</p>
+                        <p className="text-base">{convertToDate(workOrder.estimatedFinishDate.split("T")[0])}</p>
                     </div>
                     <div className="bg-white rounded-lg shadow-lg px-5 py-3">
                         <h3 className="text-slate-500 font-semibold">PEKERJA:</h3>
-                        <p className="text-lg">Winsten</p>
+                        <p className="text-base">{workOrder.worker.name}</p>
                     </div>
                 </div>
 
@@ -237,11 +242,11 @@ export default function WorkOrderDetail() {
                                 {
                                     workOrder.status == "NOT_STARTED"
                                     ?
-                                    <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="IN_PROGRESS" onPress={(e) => handleChangeStatus(e)}>Sedang Diproses</Button>
+                                    <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="IN_PROGRESS" onPress={(e) => handleChangeStatus(e)}>{ isLoading ? "Memproses ..." : "Sedang Diproses" }</Button>
                                     :
                                     workOrder.status == "IN_PROGRESS"
                                     ?
-                                    <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="COMPLETED" onPress={(e) => handleChangeStatus(e)}>Selesai</Button>
+                                    <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="COMPLETED" onPress={(e) => handleChangeStatus(e)}>{ isLoading ? "Memproses..." : "Selesai" }</Button>
                                     :
                                     <></>
                                 }
@@ -258,59 +263,6 @@ export default function WorkOrderDetail() {
                     </div>
                 </div>
             </div>
-
-
-
-                {/* <div className="w-[20%]">
-                    <div className="bg-white shadow-lg rounded-lg px-5 py-5 h-fit">
-                        <h1 className="font-bold text-xl mb-5">Informasi Klien</h1>
-
-                        <div className="flex items-center">
-                            <Image src={user} alt="icon" width={20} height={20} />
-                            <p className="text-lg ml-2">{workOrder.client.name}</p>
-                        </div>
-
-                        <div className="flex">
-                            <Image src={address} alt="icon" width={20} height={20} />
-                            <p className="text-lg ml-2">{workOrder.client.address}</p>
-                        </div>
-
-                        <div className="flex">
-                            <Image src={phone} alt="icon" width={20} height={20} />
-                            <p className="text-lg ml-2">+62 {workOrder.client.telephone}</p>
-                        </div>
-                    </div>
-
-                    {
-                        workOrder.status == "CANCELLED" || workOrder.status == "COMPLETED"
-                        ?
-                        <></>
-                        :
-                        <div className="bg-white mt-5 rounded-lg shadow-lg px-5 py-5">
-                            <h1 className="font-bold text-xl mb-5">Edit Status</h1>
-                            {
-                                workOrder.status == "NOT_STARTED"
-                                ?
-                                <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="IN_PROGRESS" onPress={(e) => handleChangeStatus(e)}>Sedang Diproses</Button>
-                                :
-                                workOrder.status == "IN_PROGRESS"
-                                ?
-                                <Button className="bg-[gold] w-full rounded-lg hover:cursor-pointer" name="COMPLETED" onPress={(e) => handleChangeStatus(e)}>Selesai</Button>
-                                :
-                                <></>
-                            }
-
-                            {
-                                workOrder.status == "COMPLETED"
-                                ?
-                                <></>
-                                :
-                                <Button className="bg-red-600 text-white w-full rounded-lg my-3 hover:cursor-pointer" name="CANCELLED">Batal</Button>
-                            }
-                        </div>
-                    }
-                </div> */}
-            
 
             {/* Toast */}
             {
