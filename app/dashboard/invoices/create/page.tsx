@@ -9,6 +9,7 @@ import search from "@/public/svgs/search.svg"
 
 import { useRouter } from "next/navigation"
 import { useEffect, useState, FormEvent } from "react"
+import { useUser } from "@clerk/nextjs"
 
 interface InvoiceForm {
     invoiceNumber: string;
@@ -19,6 +20,7 @@ interface InvoiceForm {
 
 export default function CreateInvoice() {
     const router = useRouter()
+    const { user } = useUser() 
 
     const [tableVisible, setTableVisible] = useState<boolean>(false)
 
@@ -153,6 +155,7 @@ export default function CreateInvoice() {
         }
 
         formData.set("workOrders", JSON.stringify(selectedWorkOrder))
+        formData.set("user", user?.firstName + " " + user?.lastName)
 
         try {
             const response = await fetch(`/api/invoices`, {

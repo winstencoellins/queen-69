@@ -1,14 +1,27 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
+    const { userId } = await auth()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
+
     const employees = await prisma.employee.findMany({})
 
     return NextResponse.json({ employees }, { status: 200 })
 }
 
 export async function POST(req: NextRequest) {
+    const { userId } = await auth()
     const data: any = await req.formData()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
+
 
     const createEmployee = await prisma.employee.create({
         data: {

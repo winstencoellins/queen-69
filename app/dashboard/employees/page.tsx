@@ -28,16 +28,29 @@ export default function Employees() {
     const [showForm, setShowForm] = useState<boolean>(false)
 
     const [employees, setEmployees] = useState([])
+    const [displayedEmployees, setDisplayedEmployees] = useState([])
 
     useEffect(() => {
         fetchEmployee()
     }, [])
 
     const handleShowForm = (): void => {
-        // showForm ? setShowForm(false) : setShowForm(true)
+        showForm ? setShowForm(false) : setShowForm(true)
+    }
+
+    const handleChange = (event: any) => {
+        if (event.currentTarget.value == "") {
+            setDisplayedEmployees(employees)
+            return
+        }
+
+        const result = employees.filter((employee: any) => employee.name.toLowerCase().includes(event.currentTarget.value.toLowerCase()))
+        setDisplayedEmployees(result)
     }
 
     const fetchEmployee = async () => {
+        setIsLoading(true)
+
         try {
             const response = await fetch(`/api/employees`)
 
@@ -48,11 +61,14 @@ export default function Employees() {
             }
 
             setEmployees(data.employees)
+            setDisplayedEmployees(data.employees)
         } catch (error) {
             console.log(error)
             setMessage("Gagal untuk memuat data karena koneksi internet. Silahkan coba lagi.")
             setValid(false)
             setIsVisible(true)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -90,6 +106,7 @@ export default function Employees() {
             setMessage(s)
             setIsVisible(true)
             setValid(false)
+            setIsLoading(false)
             return
         }
 
@@ -180,7 +197,7 @@ export default function Employees() {
                         />
                     </div>
 
-                    <Button type="submit" className="bg-[gold] rounded-lg mt-5">{ isLoading ? "Memproses..." : "Buat Baru" }</Button>
+                    <Button type="submit" className="bg-[gold] rounded-lg mt-5 hover:cursor-pointer">{ isLoading ? "Memproses..." : "Buat Baru" }</Button>
                 </form>
                 :
                 <></>
@@ -196,12 +213,16 @@ export default function Employees() {
                     type='text'
                     className="w-1/4 bg-slate-100 rounded-lg mb-5"
                     id="search"
-                    // onChange={() => handleChange()}
+                    onChange={(e) => handleChange(e)}
                 />
 
-                <div className="grid grid-cols-4 gap-x-5">
+                {
+                    isLoading ? <p>Sedang memuat data...</p> : <></>
+                }
+
+                <div className="grid grid-cols-4 gap-x-5 gap-y-5">
                     {
-                        employees.map((employee: any, index) => (
+                        displayedEmployees.map((employee: any, index) => (
                             <div className="bg-white rounded-lg shadow-lg px-5 py-5" key={index}>
                                 <div>
                                     <h3 className="my-1 text-lg">{employee.name}</h3>

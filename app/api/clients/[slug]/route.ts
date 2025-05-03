@@ -1,7 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(req: NextRequest) {
+    const { userId } = await auth()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user!" }, { status: 401 })
+    }
+
     const clientId: string = req.url.split('/')[5]
 
     const clientDetail = await prisma.client.findUnique({
@@ -40,23 +47,16 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+    const { userId } = await auth()
     const data = await req.formData()
 
-    console.log(data.get("status"))
     const clientId: string = req.url.split('/')[5]
 
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
 
     if (data.get("status") == "") {
-        // const clientExist = await prisma.client.findFirst({
-        //     where: {
-        //         name: data.get('name') as string
-        //     }
-        // })
-
-        // if (clientExist != null) {
-        //     return NextResponse.json({ success: false, message: "Tidak bisa menyimpan klien dengan nama yang sama. Silahkan menggunakan nama klien yang lain." }, { status: 409 })
-        // }
-
         const updateClient = await prisma.client.update({
             where: {
                 id: clientId

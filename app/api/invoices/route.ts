@@ -1,7 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(req: NextRequest) {
+    const { userId } = await auth()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
+
     const invoices = await prisma.invoice.findMany({
         select: {
             id: true,
@@ -12,13 +19,16 @@ export async function GET(req: NextRequest) {
         }
     })
 
-    console.log(invoices)
-
     return NextResponse.json({ success: true, invoices }, { status: 200 })
 }
 
 export async function POST(req: NextRequest) {
+    const { userId } = await auth()
     const data: any = await req.formData()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
 
     const workOrders = JSON.parse(data.get("workOrders"))
 
@@ -46,11 +56,10 @@ export async function POST(req: NextRequest) {
             invoiceNumber: data.get("invoiceNumber"),
             packingPrice: parseInt(data.get("packingPrice")),
             shippingPrice: parseInt(data.get("shippingPrice")),
-            clientId: clientId?.id
+            clientId: clientId?.id,
+            createdBy: data.get("user")
         }
     })
-
-    console.log(createInvoice)
 
     for (const id in workOrders) {
         const updateWorkOrderAvailability = await prisma.workOrder.update({

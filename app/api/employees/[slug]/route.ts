@@ -1,8 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(req: NextRequest) {
+    const { userId } = await auth()
     const url = req.url
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
 
     const employee = await prisma.employee.findUnique({
         where: {
@@ -18,7 +24,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+    const { userId } = await auth()
     const data: any = await req.formData()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
 
     const updateEmployee = await prisma.employee.update({
         where: {

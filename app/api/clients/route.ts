@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 /**
  * Creates a new client in the database.
@@ -10,7 +11,12 @@ import { NextRequest, NextResponse } from "next/server";
  * @returns error messsage if client already exist, else will create new client.
  */
 export async function POST(req: NextRequest) {
+    const { userId } = await auth()
     const formData = await req.formData()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
 
     const clientExist = await prisma.client.findFirst({
         where: {
@@ -40,6 +46,12 @@ export async function POST(req: NextRequest) {
  * @param req
  */
 export async function GET() {
+    const { userId } = await auth()
+
+    if (!userId) {
+        return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
+    }
+
     const clients = await prisma.client.findMany()
 
     return NextResponse.json({ success: true, clients }, { status: 200 })

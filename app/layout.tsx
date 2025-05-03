@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs"
 import { Mulish } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -19,15 +20,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${mulish.className} antialiased bg-slate-50`}
-        suppressHydrationWarning={true}
-      >
-        <Providers>
-          {children}
-        </Providers>
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: "#BA9731",
+          colorText: "black"
+        }
+      }}
+    >
+      <html lang="en">
+        <body
+          className={`${mulish.className} antialiased bg-slate-50`}
+          suppressHydrationWarning={true}
+        >
+          <Providers>
+            {children}
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
