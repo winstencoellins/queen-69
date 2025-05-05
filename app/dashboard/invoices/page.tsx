@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { Button, Input } from "@heroui/react"
+import { Button, Input, Pagination } from "@heroui/react"
 
 import add from "@/public/svgs/add.svg"
 import search from "@/public/svgs/search.svg"
@@ -34,6 +34,11 @@ export default function Invoices() {
     const [invoices, setInvoices] = useState<Invoice[]>([])
     const [displayedInvoice, setDisplayedInvoice] = useState<Invoice[]>([])
 
+    const [page, setPage] = useState<number>(1)
+    const [records, setRecords] = useState<number>(0)
+
+    const maxSize = 8
+
     useEffect(() => {
         fetchInvoices()
     }, [])
@@ -41,7 +46,7 @@ export default function Invoices() {
     /**
      *
      */
-    const handleChange = () => {
+    const handleChange = (page: any = 1) => {
         const dropdown: any = document.getElementById("dropdown")
         const search: any = document.getElementById("search")
         let result = []
@@ -77,8 +82,10 @@ export default function Invoices() {
                 throw new Error("Something went wrong. Please try again.")
             }
 
+            setPage(Math.ceil(data.invoices / maxSize))
             setInvoices(data.invoices)
             setDisplayedInvoice(data.invoices)
+            setRecords(data.invoices.length)
         } catch (error) {
             console.log(error)
             setMessage("Gagal untuk memuat data dikarenakan koneksi internet. Silahkan coba lagi.")
@@ -194,6 +201,18 @@ export default function Invoices() {
                     :
                     <></>
                 }
+            </div>
+
+            {/* Pagination */}
+            <div className="flex justify-between items-center mt-5">
+                <Pagination total={page} initialPage={1} classNames={{
+                        item: "bg-yellow-200 rounded-lg px-3",
+                        cursor: "px-3 bg-[gold] rounded-lg duration-200 text-white"
+                    }}
+                    onChange={(page: number) => handleChange(page)}
+                />
+
+                <p className="text-sm">{records} records</p>
             </div>
         </>
     )
