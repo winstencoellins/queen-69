@@ -34,9 +34,9 @@ export default function EditInvoice() {
         shippingPrice: "",
         name: ""
     })
-    
-    const removeWorkOrder: Record<string, boolean> = {}
-    const addWorkOrder: Record<string, boolean> = {}
+
+    const [removeWorkOrder, setRemoveWorkOrder] = useState<Record<string, boolean>>({})
+    const [addWorkOrder, setAddWorkOrder] = useState<Record<string, boolean>>({})
 
     useEffect(() => {
         fetchInvoiceDetail()
@@ -44,7 +44,7 @@ export default function EditInvoice() {
 
     /**
      * Navigate back to invoice detail
-     * 
+     *
      * @returns none
      */
     const handleClickBack = (): void => {
@@ -54,8 +54,8 @@ export default function EditInvoice() {
     /**
      * Handles the changes made by user and will be
      * submitted to the backend.
-     * 
-     * @param e 
+     *
+     * @param e
      */
     const handleChange = (e: any): void => {
         const { name, value } = e.target
@@ -68,43 +68,47 @@ export default function EditInvoice() {
     /**
      * Collects all the checked data by user to add
      * the work order into the related invoice
-     * 
-     * @param event 
+     *
+     * @param event
      */
     const handleAddSelect = (event: any) => {
+        const temp = addWorkOrder
         const key = event.currentTarget.value
 
-        if (key in addWorkOrder) {
-            delete addWorkOrder[`${key}`]
+        if (key in temp) {
+            delete temp[`${key}`]
         } else {
-            addWorkOrder[`${key}`] = true
+            temp[`${key}`] = true
         }
 
-        console.log(addWorkOrder)
+        console.log(temp)
+        setAddWorkOrder(temp)
     }
 
     /**
      * Collects all the checked data by user to remove
      * work order from the invoice
-     * 
+     *
      * @param event
      */
     const handleRemoveSelect = (event: any) => {
+        const temp = removeWorkOrder
         const key = event.currentTarget.value
 
-        if (key in removeWorkOrder) {
-            delete removeWorkOrder[`${key}`]
+        if (key in temp) {
+            delete temp[`${key}`]
         } else {
-            removeWorkOrder[`${key}`] = true
+            temp[`${key}`] = true
         }
 
-        console.log(removeWorkOrder)
+        console.log(temp)
+        setRemoveWorkOrder(temp)
     }
 
     /**
      * Fetches the invoice detail data including the
      * "COMPLETED" work order related to client targeted in the invoice.
-     * 
+     *
      * JSON Output - { invoice, client, workOrders }
      * @returns none
      */
@@ -125,7 +129,7 @@ export default function EditInvoice() {
 
                 return
             }
- 
+
             setInvoiceWorkOrder(data.invoice.workOrder)
             setWorkOrders(data.workOrders)
             setInvoice({
@@ -146,8 +150,8 @@ export default function EditInvoice() {
 
     /**
      * Handles the submission of the edited field made by the user
-     * 
-     * @param event 
+     *
+     * @param event
      * @returns none
      */
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -177,6 +181,16 @@ export default function EditInvoice() {
 
                 s += invoice[pair[0] as keyof InvoiceForm]
             }
+        }
+
+        s += " tidak boleh kosong."
+
+        if (count > 0) {
+            setMessage(s)
+            setIsVisible(true)
+            setValid(false)
+            setIsLoading(false)
+            return
         }
 
         formData.set("removeWorkOrder", JSON.stringify(removeWorkOrder))
@@ -211,7 +225,7 @@ export default function EditInvoice() {
             setIsVisible(true)
         }
     }
-    
+
 
     return (
         <>
@@ -321,7 +335,7 @@ export default function EditInvoice() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {   
+                                {
                                     workOrders.length == 0
                                     ?
                                     <></>

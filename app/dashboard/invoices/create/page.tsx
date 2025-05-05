@@ -20,7 +20,7 @@ interface InvoiceForm {
 
 export default function CreateInvoice() {
     const router = useRouter()
-    const { user } = useUser() 
+    const { user } = useUser()
 
     const [tableVisible, setTableVisible] = useState<boolean>(false)
 
@@ -34,7 +34,7 @@ export default function CreateInvoice() {
     const [displayedWorkOrders, setDisplayedWorkOrders] = useState([])
 
 
-    let selectedWorkOrder: Record<string, number> = {}
+    const [selectedWorkOrder, setSelectedWorkOrder] = useState<Record<string, number>>({})
     let count: number = 0
 
     useEffect(() => {
@@ -186,8 +186,6 @@ export default function CreateInvoice() {
     }
 
     const handleChangeDropdown = (event: any): void => {
-        selectedWorkOrder = {}
-
         const clientName = event.currentTarget.value
 
         const result = workOrders.filter((workOrder: any) => workOrder.client.name == clientName && workOrder.availability == "AVAILABLE" && workOrder.status == "COMPLETED")
@@ -197,17 +195,18 @@ export default function CreateInvoice() {
     }
 
     const handleChangeSelect = (event: any) => {
+        const temp = selectedWorkOrder
         const key = event.currentTarget.value
 
-        if (key in selectedWorkOrder) {
-            delete selectedWorkOrder[`${key}`]
+        if (key in temp) {
+            delete temp[`${key}`]
             count -= 1
         } else {
-            selectedWorkOrder[`${event.currentTarget.value}`] = count
+            temp[`${event.currentTarget.value}`] = count
             count += 1
         }
 
-        console.log(selectedWorkOrder)
+        setSelectedWorkOrder(temp)
     }
 
     return (

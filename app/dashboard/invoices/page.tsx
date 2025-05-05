@@ -39,7 +39,7 @@ export default function Invoices() {
     }, [])
 
     /**
-     * 
+     *
      */
     const handleChange = () => {
         const dropdown: any = document.getElementById("dropdown")
@@ -161,7 +161,7 @@ export default function Invoices() {
                             :
                             displayedInvoice.map((invoice, index) => (
                                 <tr key={index}>
-                                    <td className="w-[25%] py-2">
+                                    <td className="w-[25%] py-3">
                                         {invoice.invoiceNumber}
                                     </td>
                                     <td className="w-[15%]">{convertToDate(invoice.createdDate.split("T")[0])}</td>
