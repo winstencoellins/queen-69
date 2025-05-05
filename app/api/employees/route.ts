@@ -9,9 +9,9 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Unauthenticated user." }, { status: 401 })
     }
 
-    const employees = await prisma.employee.findMany({})
+    const employees = await prisma.employee.findMany()
 
-    return NextResponse.json({ employees }, { status: 200 })
+    return NextResponse.json({ success: true, employees }, { status: 200 })
 }
 
 export async function POST(req: NextRequest) {

@@ -60,8 +60,10 @@ export default function Employees() {
                 throw new Error("Something went wrong. Please try again.")
             }
 
-            setEmployees(data.employees)
-            setDisplayedEmployees(data.employees)
+            if (data.success) {
+                setEmployees(data.employees)
+                setDisplayedEmployees(data.employees)
+            }
         } catch (error) {
             console.log(error)
             setMessage("Gagal untuk memuat data karena koneksi internet. Silahkan coba lagi.")
@@ -216,12 +218,12 @@ export default function Employees() {
                     onChange={(e) => handleChange(e)}
                 />
 
-                {
-                    isLoading ? <p>Sedang memuat data...</p> : <></>
-                }
-
                 <div className="grid grid-cols-4 gap-x-5 gap-y-5">
                     {
+                        displayedEmployees.length == 0
+                        ?
+                        <p>{ isLoading ?  "Sedang memuat data..." : "Tidak ada data yang tersedia..." }</p>
+                        :
                         displayedEmployees.map((employee: any, index) => (
                             <div className="bg-white rounded-lg shadow-lg px-5 py-5" key={index}>
                                 <div>
