@@ -6,6 +6,7 @@ import Image from "next/image"
 
 import back from "@/public/svgs/back.svg"
 import search from "@/public/svgs/search.svg"
+import clipboardAdd from "@/public/svgs/clipboard-add.svg"
 
 import { useRouter } from "next/navigation"
 import { useEffect, useState, FormEvent } from "react"
@@ -254,7 +255,7 @@ export default function CreateInvoice() {
                         <tr>
                             <td className="w-[30%]">Biaya Packing</td>
                             <td>
-                                <Input placeholder="150000" className="bg-slate-200 rounded-lg mb-3"
+                                <Input placeholder="150000" type="number" className="bg-slate-200 rounded-lg mb-3"
                                 startContent={<p className="mr-2">Rp. </p>} classNames={{
                                     input: "focus:outline-none"
                                 }} name="packingPrice" />
@@ -263,7 +264,7 @@ export default function CreateInvoice() {
                         <tr>
                             <td className="w-[30%]">Biaya Pengiriman</td>
                             <td>
-                                <Input placeholder="75000" className="bg-slate-200 rounded-lg mb-3"
+                                <Input placeholder="75000" type="number" className="bg-slate-200 rounded-lg mb-3"
                                 startContent={<p className="mr-2">Rp. </p>} classNames={{
                                     input: "focus:outline-none"
                                 }} name="shippingPrice" />
@@ -325,7 +326,10 @@ export default function CreateInvoice() {
                 {
                     tableVisible
                     ?
-                    <Button type="submit" className="bg-[gold] rounded-lg">Buat Baru</Button>
+                    <Button type="submit" className="bg-[gold] rounded-lg hover:cursor-pointer">
+                        <Image src={clipboardAdd} alt="icon" width={20} height={20} />
+                        {isLoading ? "Memproses..." : "Buat Baru"}
+                    </Button>
                     :
                     <></>
                 }

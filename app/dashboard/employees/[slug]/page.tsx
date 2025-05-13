@@ -1,6 +1,7 @@
 'use client'
 
 import back from "@/public/svgs/back.svg"
+import edit from "@/public/svgs/edit.svg"
 
 import { Button, Input } from "@heroui/react"
 
@@ -185,17 +186,20 @@ export default function EmployeeDetail() {
                 </div>
                 <div className="my-2">
                     <label className="">No. Tel</label>
-                    <Input name='tel' type="number" className="bg-slate-200 rounded-lg mt-2" 
-                        startContent={<p className="mr-2">+62 </p>} 
+                    <Input name='tel' type="number" className="bg-slate-200 rounded-lg mt-2"
+                        startContent={<p className="mr-2">+62 </p>}
                         placeholder="8115342667" classNames={{
                             input: "focus:outline-none",
-                        }} 
+                        }}
                         value={employee.phone}
                         onChange={(e: any) => handleChange(e)}
                     />
                 </div>
 
-                <Button type="submit" className="bg-[gold] rounded-lg mt-5">{ isLoading ? "Memproses..." : "Simpan Data" }</Button>
+                <Button type="submit" className="bg-[gold] rounded-lg mt-5 hover:cursor-pointer">
+                    <Image src={edit} alt="icon" width={20} height={20} />
+                    { isLoading ? "Memproses..." : "Simpan Data" }
+                </Button>
             </form>
 
             {/* Toast */}

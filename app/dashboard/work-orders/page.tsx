@@ -24,6 +24,8 @@ export default function WorkOrders() {
     const [valid, setValid] = useState<boolean>(true)
     const [message, setMessage] = useState<string>("")
 
+    const [isLoadingRedirect, setIsLoadingRedirect] = useState<boolean>(false)
+
     const [workOrders, setWorkOrders] = useState([])
     const [displayedWorkOrders, setDisplayedWorkOrders] = useState<any[]>([])
     const [clients, setClients] = useState([])
@@ -159,6 +161,8 @@ export default function WorkOrders() {
      * @returns none
      */
     const handleClickCreate = (): void => {
+        setIsLoadingRedirect(true)
+
         router.push('/dashboard/work-orders/create')
     }
 
@@ -171,7 +175,7 @@ export default function WorkOrders() {
                     {/* Dropdown */}
                     <Button className="bg-[gold] rounded-lg ml-5 hover:cursor-pointer" onPress={handleClickCreate}>
                         <Image src={add} alt="icon" width={20} height={20} />
-                        <p>{isLoading ? "Mengarahkan ..." : "Tambah SPK"}</p>
+                        <p>{isLoadingRedirect ? "Mengarahkan ..." : "Tambah SPK"}</p>
                     </Button>
                 </div>
             </div>
@@ -240,7 +244,7 @@ export default function WorkOrders() {
                 }
 
             </div>
-            
+
             {/* Pagination */}
             <div className="flex justify-between items-center mt-5">
                 <Pagination total={page} initialPage={1} classNames={{

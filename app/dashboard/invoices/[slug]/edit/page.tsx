@@ -276,7 +276,7 @@ export default function EditInvoice() {
                         <tr>
                             <td className="w-[30%]">Biaya Pengiriman</td>
                             <td>
-                                <Input placeholder="75000" className="bg-slate-200 rounded-lg mb-3"
+                                <Input placeholder="75000" type="number" className="bg-slate-200 rounded-lg mb-3"
                                 startContent={<p className="mr-2">Rp. </p>} classNames={{
                                     input: "focus:outline-none"
                                 }} name="shippingPrice" value={invoice.shippingPrice} onChange={handleChange}/>

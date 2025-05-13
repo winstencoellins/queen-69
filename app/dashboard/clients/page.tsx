@@ -8,6 +8,8 @@ import Link from "next/link";
 
 import add from "@/public/svgs/add.svg"
 import search from "@/public/svgs/search.svg"
+import cross from "@/public/svgs/cross.svg"
+import clipboardAdd from "@/public/svgs/clipboard-add.svg"
 
 import clsx from "clsx";
 
@@ -59,6 +61,8 @@ export default function Client() {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault()
 
+        setIsLoading(true)
+
         const formData: FormData = new FormData(event.currentTarget)
 
         const formName: clientForm = {'clientName': 'Nama Klien', 'city': 'Kota', 'address': 'Alamat', 'telephone': 'Nomor Telepon'}
@@ -95,6 +99,7 @@ export default function Client() {
             setMessage(validString)
             setIsVisible(true)
             setValid(false)
+            setIsLoading(false)
             return
         }
 
@@ -117,6 +122,8 @@ export default function Client() {
             setMessage(data.message)
         } catch (error: any) {
             console.log(error)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -196,8 +203,8 @@ export default function Client() {
                         </select>
                     </div>
 
-                    <Button className="bg-[gold] rounded-lg ml-5 hover:cursor-pointer" onPress={() => showForm ? setShowForm(false) : setShowForm(true)}>
-                        <Image src={add} alt="icon" width={20} height={20} />
+                    <Button className={`${showForm ? "bg-red-600 text-white" : "bg-[gold]"} rounded-lg ml-5 hover:cursor-pointer`} onPress={() => showForm ? setShowForm(false) : setShowForm(true)}>
+                        {showForm ? <Image src={cross} alt="icon" width={20} height={20} /> : <Image src={add} alt="icon" width={20} height={20} />}
                         {showForm ? 'Batal' : 'Tambah Klien'}
                     </Button>
                 </div>
@@ -237,7 +244,10 @@ export default function Client() {
                         }}/>
                     </div>
 
-                    <Button type="submit" className="bg-[gold] rounded-lg mt-3 text-white hover:cursor-pointer">Buat Baru</Button>
+                    <Button type="submit" className="bg-[gold] rounded-lg mt-3 hover:cursor-pointer">
+                        <Image src={clipboardAdd} alt="icon" width={20} height={20} />
+                        { isLoading ? "Memproses..." : "Buat Baru"}
+                    </Button>
                 </form>
                 :
                 <></>

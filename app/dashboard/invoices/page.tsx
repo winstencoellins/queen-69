@@ -37,8 +37,6 @@ export default function Invoices() {
     const [page, setPage] = useState<number>(1)
     const [records, setRecords] = useState<number>(0)
 
-    const maxSize = 8
-
     useEffect(() => {
         fetchInvoices()
     }, [])
@@ -78,11 +76,13 @@ export default function Invoices() {
 
             const data = await response.json()
 
+            console.log(data)
+
             if (!response.ok) {
                 throw new Error("Something went wrong. Please try again.")
             }
 
-            setPage(Math.ceil(data.invoices / maxSize))
+            setPage(Math.ceil(data.invoices.length / 8))
             setInvoices(data.invoices)
             setDisplayedInvoice(data.invoices)
             setRecords(data.invoices.length)
@@ -167,7 +167,7 @@ export default function Invoices() {
                             <></>
                             :
                             displayedInvoice.map((invoice, index) => (
-                                <tr key={index}>
+                                <tr key={invoice.id}>
                                     <td className="w-[25%] py-3">
                                         {invoice.invoiceNumber}
                                     </td>

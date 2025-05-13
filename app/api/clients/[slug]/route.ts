@@ -34,12 +34,18 @@ export async function GET(req: NextRequest) {
             itemDescription: true,
             status: true,
             id: true
+        },
+        orderBy: {
+            estimatedFinishDate: "desc"
         }
     })
 
     const invoices = await prisma.invoice.findMany({
         where: {
             clientId: clientId
+        },
+        orderBy: {
+            createdDate: "desc"
         }
     })
 

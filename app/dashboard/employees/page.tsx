@@ -6,6 +6,8 @@ import add from "@/public/svgs/add.svg"
 import search from "@/public/svgs/search.svg"
 import phone from "@/public/svgs/phone.svg"
 import user from "@/public/svgs/user.svg"
+import cross from "@/public/svgs/cross.svg"
+import clipboardAdd from "@/public/svgs/clipboard-add.svg"
 
 import Image from "next/image"
 import Link from "next/link"
@@ -149,8 +151,8 @@ export default function Employees() {
 
                 <div className="flex items-center">
 
-                    <Button className="bg-[gold] rounded-lg ml-5 hover:cursor-pointer" onPress={handleShowForm}>
-                        <Image src={add} alt="icon" width={20} height={20} />
+                    <Button className={`${showForm ? "bg-red-600 text-white" : "bg-[gold]"} rounded-lg ml-5 hover:cursor-pointer`} onPress={handleShowForm}>
+                        { showForm ? <Image src={cross} alt="icon" width={20} height={20} /> : <Image src={add} alt="icon" width={20} height={20} />}
                         { showForm ? "Batal" : "Tambah Karyawan"}
                     </Button>
                 </div>
@@ -199,7 +201,10 @@ export default function Employees() {
                         />
                     </div>
 
-                    <Button type="submit" className="bg-[gold] rounded-lg mt-5 hover:cursor-pointer">{ isLoading ? "Memproses..." : "Buat Baru" }</Button>
+                    <Button type="submit" className="bg-[gold] rounded-lg mt-5 hover:cursor-pointer">
+                        <Image src={clipboardAdd} alt="icon" width={20} height={20} />
+                        { isLoading ? "Memproses..." : "Buat Baru" }
+                    </Button>
                 </form>
                 :
                 <></>

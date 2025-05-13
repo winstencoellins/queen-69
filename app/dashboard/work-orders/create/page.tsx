@@ -7,6 +7,8 @@ import Image from "next/image"
 import { Button, Input } from "@heroui/react"
 
 import back from "@/public/svgs/back.svg"
+import clipboardAdd from "@/public/svgs/clipboard-add.svg"
+
 import { FormEvent, useEffect, useState } from "react"
 
 interface clientInfo {
@@ -47,13 +49,13 @@ export default function WorkOrderCreate() {
     /**
      * Fetches the list of all employees that's
      * available
-     * 
+     *
      * @returns none
      */
     const fetchEmployees = async () => {
         try {
             const response = await fetch(`/api/employees`)
-            
+
             const data = await response.json()
 
             if (!response.ok) {
@@ -269,7 +271,7 @@ export default function WorkOrderCreate() {
                         <tr>
                             <td>Harga Barang</td>
                             <td>
-                                <Input placeholder="4500000" className="bg-slate-200 rounded-lg mb-3"
+                                <Input placeholder="4500000" type="number" className="bg-slate-200 rounded-lg mb-3"
                                 startContent={<p className="mr-2">Rp. </p>} classNames={{
                                     input: "focus:outline-none"
                                 }} name="price" />
@@ -280,7 +282,10 @@ export default function WorkOrderCreate() {
 
                 <hr className="my-5" />
 
-                <Button type="submit" disabled={isLoading} className="hover:cursor-pointer bg-[gold] rounded-lg">{isLoading ? "Sedang Memproses..." : "Buat SPK Baru"}</Button>
+                <Button type="submit" disabled={isLoading} className="hover:cursor-pointer bg-[gold] rounded-lg">
+                    <Image src={clipboardAdd} alt="icon" width={20} height={20} />
+                    {isLoading ? "Sedang Memproses..." : "Buat SPK Baru"}
+                </Button>
             </form>
 
             {/* Toast */}

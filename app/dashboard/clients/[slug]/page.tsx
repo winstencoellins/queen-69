@@ -5,6 +5,8 @@ import Link from "next/link"
 
 import building from "@/public/svgs/building.svg"
 import progress from "@/public/svgs/progress.svg"
+import completed from "@/public/svgs/completed.svg"
+import notStarted from "@/public/svgs/not-started.svg"
 
 import { convertToDate } from "@/lib/utils"
 
@@ -30,6 +32,10 @@ export default function ClientDetail() {
     const [message, setMessage] = useState<string>('')
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [success, setSuccess] = useState<boolean>(true)
+
+    const [processedWorkOrder, setProcessedWorkOrder] = useState<number>(0)
+    const [completedWorkOrder, setCompletedWorkOrder] = useState<number>(0)
+    const [notStartedWorkOrder, setNotStartedWorkOrder] = useState<number>(0)
 
     const [workOrders, setWorkOrders] = useState([])
     const [invoices, setInvoices] = useState([])
@@ -141,6 +147,10 @@ export default function ClientDetail() {
      * client and show it to the user.
      */
     const fetchClientDetail = async (): Promise<void> => {
+        let completed = 0
+        let inProgress = 0
+        let notStarted = 0
+
         try {
             const response = await fetch(`/api/clients/${path.split('/')[3]}`)
 
@@ -163,8 +173,23 @@ export default function ClientDetail() {
                     telephone: data.clientDetail.telephone,
                     status: data.clientDetail.status
                 })
-                setWorkOrders(data.workOrders)
-                setInvoices(data.invoices)
+                setWorkOrders(data.workOrders.slice(0, 5))
+                setInvoices(data.invoices.slice(0, 5))
+
+                for (const record of data.workOrders) {
+                    if (record.status == "COMPLETED") {
+                        completed += 1
+                    } else if (record.status == "IN_PROGRESS") {
+                        inProgress += 1
+                    } else if (record.status == "NOT_STARTED") {
+                        notStarted += 1
+                    }
+
+                }
+
+                setCompletedWorkOrder(completed)
+                setNotStartedWorkOrder(notStarted)
+                setProcessedWorkOrder(inProgress)
             }
         } catch (error) {
             console.log(error)
@@ -287,13 +312,29 @@ export default function ClientDetail() {
                 </div>
 
                 <div>
-                    <div className="grid grid-cols-3">
-                        <div className="bg-white rounded-lg h-fit px-10 py-5 flex">
+                    <div className="grid grid-cols-3 gap-x-2">
+                        <div className="bg-white rounded-lg h-fit px-10 py-5 flex justify-between">
                             <div className="mr-3">
-                                <p className="text-2xl font-bold text-orange-500">5</p>
+                                <p className="text-2xl font-bold text-orange-500">{processedWorkOrder}</p>
                                 <p className="">Sedang Diproses</p>
                             </div>
                             <Image src={progress} alt="icon" width={30} height={30} />
+                        </div>
+
+                        <div className="bg-white rounded-lg h-fit px-10 py-5 flex justify-between">
+                            <div className="mr-3">
+                                <p className="text-2xl font-bold text-green-500">{completedWorkOrder}</p>
+                                <p className="">Selesai</p>
+                            </div>
+                            <Image src={completed} alt="icon" width={30} height={30} />
+                        </div>
+
+                        <div className="bg-white rounded-lg h-fit px-10 py-5 flex justify-between">
+                            <div className="mr-3">
+                                <p className="text-2xl font-bold text-slate-500">{notStartedWorkOrder}</p>
+                                <p className="">Belum Dimulai</p>
+                            </div>
+                            <Image src={notStarted} alt="icon" width={30} height={30} />
                         </div>
                     </div>
 
@@ -319,7 +360,7 @@ export default function ClientDetail() {
                                         workOrders.map((workOrder: any, index) => (
                                             <tr className="text-sm" key={index}>
                                                 <td className="py-3">{workOrder.workOrderNumber}</td>
-                                                <td>{workOrder.worker}</td>
+                                                <td>{workOrder.worker.name}</td>
                                                 <td>{workOrder.itemDescription}</td>
                                                 <td><p className={clsx("px-2 py-1 w-fit rounded-full text-xs", workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : "bg-red-100 text-red-500")}>{workOrder.status == "COMPLETED" ? "Selesai" : workOrder.status == "IN_PROGRESS" ? "Sedang Diproses" : workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : "Dibatalkan"}</p></td>
                                                 <td><Link href={`/dashboard/work-orders/${workOrder.id}`} className="text-yellow-500 hover:underline">Lihat Detail</Link></td>
