@@ -289,15 +289,15 @@ export default function Client() {
                         {
                             tempClients.map((client) => (
                                 <tr key={client.name}>
-                                    <td className="w-[25%] py-2">
+                                    <td className="py-2">
                                         <p className="font-semibold">
                                             {client.name} <br />
                                             <span className="text-xs font-normal">+62 {client.telephone}</span>
                                         </p>
                                     </td>
-                                    <td className="w-[15%]">{client.city}</td>
-                                    <td className="w-[25%]">{client.address}</td>
-                                    <td><span className={clsx("px-5 py-1 rounded-full text-sm", client.status == 'ACTIVE' ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{client.status == 'ACTIVE' ? 'Aktif' : 'Tidak Aktif'}</span></td>
+                                    <td className="">{client.city}</td>
+                                    <td className="w-[35%] pr-10">{client.address}</td>
+                                    <td className="w-[15%]"><span className={clsx("px-5 py-1 rounded-full text-sm", client.status == 'ACTIVE' ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{client.status == 'ACTIVE' ? 'Aktif' : 'Tidak Aktif'}</span></td>
                                     <td><Link href={`/dashboard/clients/${client.id}`} className="text-yellow-500 hover:underline duration-150">Lihat Rincian</Link></td>
                                 </tr>
                             ))

@@ -204,7 +204,7 @@ export default function WorkOrders() {
 
                 <hr className="pb-5"/>
 
-                <table className="w-full text-left">
+                <table className="w-full text-left table-auto">
                     <thead className="pt-5 text-slate-400">
                         <tr>
                             <th># SPK</th>
@@ -219,15 +219,15 @@ export default function WorkOrders() {
                         {
                             displayedWorkOrders.map((workOrder: any) => (
                                 <tr key={workOrder.workOrderNumber} className="">
-                                    <td className="py-5">{workOrder.workOrderNumber}</td>
-                                    <td className="">
+                                    <td className="py-8 w-[10%]">{workOrder.workOrderNumber}</td>
+                                    <td className="pr-5">
                                         <p>{workOrder.client.name}<br />
                                         <span className="text-xs">+62 {workOrder.client.telephone}</span>
                                         </p>
                                     </td>
-                                    <td><p>{workOrder.itemDescription} <br /><span className="text-xs">{workOrder.notes}</span></p></td>
-                                    <td>{convertToDate(workOrder.estimatedFinishDate.split("T")[0])}</td>
-                                    <td><p className={clsx("px-5 py-1 w-fit text-sm rounded-full", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Sedang Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p></td>
+                                    <td className="pr-10"><p>{workOrder.itemDescription} <br /><span className="text-xs">{workOrder.notes}</span></p></td>
+                                    <td className="w-[20%]">{convertToDate(workOrder.estimatedFinishDate.split("T")[0])}</td>
+                                    <td className="w-[15%]"><p className={clsx("px-5 py-1 w-fit text-sm rounded-full", workOrder.status == "NOT_STARTED" ? "bg-slate-100 text-slate-500" : workOrder.status == "IN_PROGRESS" ? "bg-orange-100 text-orange-500" : workOrder.status == "COMPLETED" ? "bg-green-100 text-green-500" : "bg-red-100 text-red-500")}>{workOrder.status == "NOT_STARTED" ? "Belum Dimulai" : workOrder.status == "IN_PROGRESS" ? "Sedang Diproses" : workOrder.status == "COMPLETED" ? "Selesai" : "Dibatalkan"}</p></td>
                                     <td><Link href={`/dashboard/work-orders/${workOrder.id}`} className="text-yellow-500 hover:underline">Lihat Rincian</Link></td>
                                 </tr>
                             ))

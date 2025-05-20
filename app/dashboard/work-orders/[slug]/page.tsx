@@ -204,7 +204,7 @@ export default function WorkOrderDetail() {
                             ?
                             <></>
                             :
-                            <Button onPress={handleNavigateDetail} className="bg-[gold] mt-10 rounded-lg">
+                            <Button onPress={handleNavigateDetail} className="bg-[gold] mt-10 rounded-lg hover:cursor-pointer">
                                 <Image src={edit} width={20} height={20} alt="icon" />
                                 Edit SPK
                             </Button>
